@@ -1,3 +1,4 @@
-module TCal
-  VERSION = "0.0.1"
-end
+require "./t_cal/server"
+
+port = ENV.fetch("PORT", "8080").to_i
+TCal::Server.new(port).start
