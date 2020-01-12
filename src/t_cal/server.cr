@@ -3,7 +3,7 @@ require "logger"
 require "./handler"
 
 class TCal::Server
-  def initialize(@port : Int32, @log_io : IO = STDOUT)
+  def initialize(@address : String, @port : Int32, @log_io : IO)
     @server = HTTP::Server.new([
       HTTP::ErrorHandler.new,
       HTTP::LogHandler.new(@log_io),
@@ -13,7 +13,7 @@ class TCal::Server
   end
 
   def start
-    address = @server.bind_tcp(@port)
+    address = @server.bind_tcp(@address, @port)
     @log_io.puts("Server started on #{address}")
     @server.listen
   end
