@@ -3,6 +3,8 @@ require "./json_api"
 class TCal::Calendar
   @alerts : Array(TCal::JSONAPI::Alert)
 
+  private DEFAULT_SUMMARY = "Shuttle service"
+
   def initialize(alerts)
     @alerts = alerts.select do |alert|
       alert.effect == "SHUTTLE" && alert.definite_active_periods.any?
@@ -19,8 +21,10 @@ class TCal::Calendar
 
       io.puts "BEGIN:VEVENT"
       io.puts "UID:#{alert.id}"
-      io.puts "SUMMARY:#{alert.service_effect || "Shuttles"}"
-      io.puts "DTSTAMP:#{format_time(alert.created_at)}"
+      io.puts "SUMMARY:#{alert.service_effect || DEFAULT_SUMMARY}"
+      io.puts "DESCRIPTION:#{alert.header}"
+      io.puts "URL:#{alert.url}" if !alert.url.nil?
+      io.puts "DTSTAMP:#{format_time(alert.updated_at)}"
       io.puts "DTSTART:#{format_time(first_period.start)}"
       io.puts "DTEND:#{format_time(first_period.end)}"
 
