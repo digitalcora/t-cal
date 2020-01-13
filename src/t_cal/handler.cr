@@ -15,8 +15,10 @@ class TCal::Handler
   end
 
   def call(context)
-    if context.request.path == "/shuttles.ics"
-      context.response.content_type = "text/calendar"
+    if context.request.path =~ /^\/shuttles\.(ics|txt)$/
+      context.response.content_type =
+        ($~[1] == "ics" ? "text/calendar" : "text/plain")
+
       handle(context)
     else
       call_next(context)
