@@ -16,8 +16,7 @@ class TCal::Calendar
     io.puts "VERSION:2.0"
 
     @alerts.each do |alert|
-      first_period = alert.definite_active_periods.first
-      other_periods = alert.definite_active_periods.skip(1)
+      periods = alert.definite_active_periods
 
       io.puts "BEGIN:VEVENT"
       io.puts "UID:#{alert.id}"
@@ -25,22 +24,20 @@ class TCal::Calendar
       io.puts "DESCRIPTION:#{alert.header}"
       io.puts "URL:#{alert.url}" if !alert.url.nil?
       io.puts "DTSTAMP:#{format_time(alert.updated_at)}"
-      io.puts "DTSTART:#{format_time(first_period.start)}"
-      io.puts "DTEND:#{format_time(first_period.end)}"
+      io.puts "DTSTART:#{format_time(periods.first.start)}"
+      io.puts "DTEND:#{format_time(periods.first.end)}"
 
-      if other_periods.any?
-        io << "RDATE;VALUE=PERIOD:"
-        io.puts other_periods.map { |period| format_period(period) }.join(",")
+      if periods.size > 1
+        formatted_periods = periods.skip(1).map do |period|
+          "#{format_time(period.start)}/#{format_time(period.end)}"
+        end
+        io.puts "RDATE;VALUE=PERIOD:#{formatted_periods.join(",")}"
       end
 
       io.puts "END:VEVENT"
     end
 
     io.puts "END:VCALENDAR"
-  end
-
-  private def format_period(period)
-    "#{format_time(period.start)}/#{format_time(period.end)}"
   end
 
   private def format_time(time)
