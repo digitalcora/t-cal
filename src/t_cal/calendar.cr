@@ -14,6 +14,8 @@ class TCal::Calendar
   def to_s(io)
     io.puts "BEGIN:VCALENDAR"
     io.puts "VERSION:2.0"
+    io.puts "PRODID:-//TCal//NONSGML MBTA Shuttles Calendar//EN"
+    io.puts "X-WR-CALNAME:MBTA Shuttles"
 
     @alerts.each do |alert|
       periods = alert.definite_active_periods
