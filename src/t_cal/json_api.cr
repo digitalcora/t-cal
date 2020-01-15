@@ -20,9 +20,9 @@ module TCal::JSONAPI
 
     @[JSON::Field(key: "active_period")]
     getter active_periods : Array(ActivePeriod)
-    getter effect : String?
+    getter effect : String
     getter header : String
-    getter service_effect : String?
+    getter service_effect : String
     getter updated_at : Time
     getter url : String?
 
