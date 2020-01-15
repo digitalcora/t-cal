@@ -3,6 +3,8 @@ require "./json_api"
 class TCal::Calendar
   @alerts : Array(TCal::JSONAPI::Alert)
 
+  private VERSION = 1 # Increment to invalidate existing UIDs
+
   def initialize(alerts)
     @alerts = alerts.select do |alert|
       alert.effect == "SHUTTLE" && alert.definite_active_periods.any?
@@ -17,7 +19,8 @@ class TCal::Calendar
       periods = alert.definite_active_periods
 
       io.puts "BEGIN:VEVENT"
-      io.puts "UID:#{alert.id}"
+      io.puts "UID:tcal-v#{VERSION}-#{alert.id}"
+      io.puts "SEQUENCE:#{alert.updated_at.to_unix}"
       io.puts "SUMMARY:#{alert.service_effect}"
       io.puts "DESCRIPTION:#{alert.header}"
       io.puts "URL:#{alert.url}" if !alert.url.nil?
