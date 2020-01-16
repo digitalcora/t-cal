@@ -18,8 +18,6 @@ class TCal::Calendar
     io.puts "X-WR-CALNAME:MBTA Shuttles"
 
     @alerts.each do |alert|
-      periods = alert.definite_active_periods
-
       io.puts "BEGIN:VEVENT"
       io.puts "UID:tcal-v#{VERSION}-#{alert.id}"
       io.puts "SEQUENCE:#{alert.updated_at.to_unix}"
@@ -27,20 +25,51 @@ class TCal::Calendar
       io.puts "DESCRIPTION:#{alert.header}"
       io.puts "URL:#{alert.url}" if !alert.url.nil?
       io.puts "DTSTAMP:#{format_time(alert.updated_at)}"
+
+      periods = condense(alert.definite_active_periods)
       io.puts "DTSTART:#{format_time(periods.first.start)}"
       io.puts "DTEND:#{format_time(periods.first.end)}"
 
       if periods.size > 1
-        formatted_periods = periods.skip(1).map do |period|
+        recurrences = periods.skip(1).map do |period|
           "#{format_time(period.start)}/#{format_time(period.end)}"
         end
-        io.puts "RDATE;VALUE=PERIOD:#{formatted_periods.join(",")}"
+        io.puts "RDATE;VALUE=PERIOD:#{recurrences.join(",")}"
       end
 
       io.puts "END:VEVENT"
     end
 
     io.puts "END:VCALENDAR"
+  end
+
+  private alias TimePeriod = TCal::JSONAPI::DefinitePeriod
+
+  private def condense(periods)
+    periods.map do |period|
+      TimePeriod.new(adjust_start(period.start), adjust_end(period.end))
+    end.reduce([] of TimePeriod) do |periods, period|
+      if !periods.empty? && period.start == periods[-1].end
+        periods << TimePeriod.new(periods.pop.start, period.end)
+      else
+        periods << period
+      end
+    end
+  end
+
+  private def adjust_start(time)
+    case time.hour
+    when .< 9 then time.at_beginning_of_day
+    else           time
+    end
+  end
+
+  private def adjust_end(time)
+    case time.hour
+    when .>= 22 then time.shift(days: 1).at_beginning_of_day
+    when .< 9   then time.at_beginning_of_day
+    else             time
+    end
   end
 
   private def format_time(time)

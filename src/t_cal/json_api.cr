@@ -26,7 +26,6 @@ module TCal::JSONAPI
     getter updated_at : Time
     getter url : String?
 
-    private record DefinitePeriod, start : Time, end : Time
     @[JSON::Field(ignore: true)]
     @_definite_active_periods : Array(DefinitePeriod)?
 
@@ -43,4 +42,6 @@ module TCal::JSONAPI
     getter start : Time
     getter end : Time?
   end
+
+  record DefinitePeriod, start : Time, end : Time
 end
