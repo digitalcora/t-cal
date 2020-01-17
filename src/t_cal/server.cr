@@ -8,7 +8,7 @@ class TCal::Server
       HTTP::ErrorHandler.new,
       HTTP::LogHandler.new(@log_io),
       HTTP::CompressHandler.new,
-      TCal::Handler.new,
+      TCal::Handler.new(@log_io),
     ])
   end
 

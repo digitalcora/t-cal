@@ -12,7 +12,7 @@ class TCal::Handler
 
   private record Cache, content : String, time : Time
 
-  def initialize
+  def initialize(@log_io : IO)
     @caches = {} of Bool => Cache
   end
 
@@ -27,6 +27,7 @@ class TCal::Handler
         when "false" then false
         else
           user_agent = context.request.headers["user-agent"]?
+          @log_io.puts "User-Agent: #{user_agent}"
           COMPLIANT_AGENTS.none? { |agent| user_agent =~ agent }
         end
 
