@@ -1,4 +1,5 @@
 require "./json_api"
+require "./date_time"
 
 class TCal::Calendar
   @alerts : Array(TCal::JSONAPI::Alert)
@@ -29,15 +30,15 @@ class TCal::Calendar
       io.puts "SUMMARY:#{alert.service_effect}"
       io.puts "DESCRIPTION:#{alert.header}"
       io.puts "URL:#{alert.url}" if !alert.url.nil?
-      io.puts "DTSTAMP:#{format_time(alert.updated_at)}"
+      io.puts "DTSTAMP:#{alert.updated_at.to_ical}"
 
       periods = condense_periods(alert.definite_active_periods)
-      io.puts format_prop("DTSTART", periods.first.start)
-      io.puts format_prop("DTEND", periods.first.end)
+      io.puts "DTSTART:#{periods.first.start.to_ical}"
+      io.puts "DTEND:#{periods.first.end.to_ical}"
 
       if periods.size > 1
         recurrences = periods.skip(1).map do |period|
-          "#{format_time(period.start)}/#{format_time(period.end)}"
+          "#{period.start.to_ical}/#{period.end.to_ical}"
         end
         io.puts "RDATE;VALUE=PERIOD:#{recurrences.join(",")}"
       end
@@ -50,20 +51,19 @@ class TCal::Calendar
     @alerts.each do |alert|
       compat_periods(alert.definite_active_periods).each do |period|
         io.puts "BEGIN:VEVENT"
-        io.puts "UID:tcal-v#{VERSION}-#{alert.id}-#{to_unix(period.start)}"
+        io.puts "UID:tcal-v#{VERSION}-#{alert.id}-#{period.start.to_unix}"
         io.puts "SEQUENCE:#{alert.updated_at.to_unix}"
         io.puts "SUMMARY:#{alert.service_effect}"
         io.puts "DESCRIPTION:#{alert.header}"
         io.puts "URL:#{alert.url}" if !alert.url.nil?
-        io.puts "DTSTAMP:#{format_time(alert.updated_at)}"
-        io.puts format_prop("DTSTART", period.start)
-        io.puts format_prop("DTEND", period.end) if period.start != period.end
+        io.puts "DTSTAMP:#{alert.updated_at.to_ical}"
+        io.puts period.start.to_ical("DTSTART")
+        io.puts period.end.to_ical("DTEND") if period.start != period.end
         io.puts "END:VEVENT"
       end
     end
   end
 
-  private alias Date = Tuple(Int32, Int32, Int32)
   private record DatePeriod, start : Date, end : Date
   private alias TimePeriod = TCal::JSONAPI::DefinitePeriod
 
@@ -82,7 +82,7 @@ class TCal::Calendar
       split_days(period)
     end.map do |period|
       if all_day?(period)
-        DatePeriod.new(period.start.date, period.end.date)
+        DatePeriod.new(period.start.to_date, period.end.to_date)
       else
         period
       end
@@ -138,29 +138,6 @@ class TCal::Calendar
         split_days(TimePeriod.new(start_next_day, period.end))
     else
       [period]
-    end
-  end
-
-  private def to_unix(time)
-    case time
-    when Date then Time.utc(time[0], time[1], time[2], 0, 0, 0).to_unix
-    when Time then time.to_unix
-    end
-  end
-
-  private def format_prop(name, value)
-    case value
-    when Date then "#{name};VALUE=DATE:#{format_time(value)}"
-    when Time then "#{name}:#{format_time(value)}"
-    end
-  end
-
-  private def format_time(time)
-    case time
-    when Date
-      time[0].to_s + time[1].to_s.rjust(2, '0') + time[2].to_s.rjust(2, '0')
-    when Time
-      time.to_utc.to_s("%Y%m%dT%H%M%SZ")
     end
   end
 end
