@@ -1,6 +1,8 @@
 require "http/server"
+require "http/server/handler"
 require "logger"
 require "./handler"
+require "./root_handler"
 
 class TCal::Server
   def initialize(@address : String, @port : Int32, @log_io : IO)
@@ -9,6 +11,7 @@ class TCal::Server
       HTTP::LogHandler.new(@log_io),
       HTTP::CompressHandler.new,
       TCal::Handler.new(@log_io),
+      TCal::RootHandler.new,
     ])
   end
 
