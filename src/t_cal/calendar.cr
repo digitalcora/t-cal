@@ -3,11 +3,12 @@ require "./json_api"
 class TCal::Calendar
   @alerts : Array(TCal::JSONAPI::Alert)
 
+  private EFFECTS = %w(SHUTTLE SUSPENSION)
   private VERSION = 1 # Increment to invalidate existing UIDs
 
   def initialize(alerts, @compat_mode : Bool)
     @alerts = alerts.select do |alert|
-      alert.effect == "SHUTTLE" && alert.definite_active_periods.any?
+      EFFECTS.includes?(alert.effect) && alert.definite_active_periods.any?
     end
   end
 
