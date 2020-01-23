@@ -4,20 +4,17 @@ require "./date_time"
 class TCal::Calendar
   @alerts : Array(TCal::JSONAPI::Alert)
 
-  private EFFECTS = %w(SHUTTLE SUSPENSION)
   private VERSION = 1 # Increment to invalidate existing UIDs
 
   def initialize(alerts, @compat_mode : Bool)
-    @alerts = alerts.select do |alert|
-      EFFECTS.includes?(alert.effect) && alert.definite_active_periods.any?
-    end
+    @alerts = alerts.select(&.definite_active_periods.any?)
   end
 
   def to_s(io)
     io.puts "BEGIN:VCALENDAR"
     io.puts "VERSION:2.0"
-    io.puts "PRODID:-//TCal//NONSGML MBTA Shuttles Calendar//EN"
-    io.puts "X-WR-CALNAME:MBTA Shuttles"
+    io.puts "PRODID:-//TCal//NONSGML MBTA Disruptions Calendar//EN"
+    io.puts "X-WR-CALNAME:MBTA Disruptions"
     @compat_mode ? output_compat_events(io) : output_events(io)
     io.puts "END:VCALENDAR"
   end

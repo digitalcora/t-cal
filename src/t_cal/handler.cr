@@ -4,7 +4,9 @@ require "./calendar"
 class TCal::Handler
   include HTTP::Handler
 
-  private ALERTS_URL = "https://api-v3.mbta.com/alerts?filter[route_type]=0,1"
+  private ALERTS_URL = "https://api-v3.mbta.com/alerts" +
+                       "?filter[route_type]=0,1&filter[severity]=5,6,7,8,9,10"
+
   private CACHE_TIME = Time::Span.new(hours: 0, minutes: 1, seconds: 0)
 
   # User-Agents for which "compat mode" can safely default to false
@@ -17,7 +19,7 @@ class TCal::Handler
   end
 
   def call(context)
-    if context.request.path =~ /^\/shuttles\.(ics|txt)$/
+    if context.request.path =~ /^\/alerts\.(ics|txt)$/
       context.response.content_type =
         ($~[1] == "ics" ? "text/calendar" : "text/plain")
 
