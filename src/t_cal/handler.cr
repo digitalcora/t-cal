@@ -1,14 +1,11 @@
 require "http/server/handler"
+require "./alerts_api"
 require "./calendar"
 
 class TCal::Handler
   include HTTP::Handler
 
-  private ALERTS_URL = "https://api-v3.mbta.com/alerts" +
-                       "?filter[route_type]=0,1&filter[severity]=5,6,7,8,9,10"
-
   private CACHE_TIME = Time::Span.new(hours: 0, minutes: 1, seconds: 0)
-
   # User-Agents for which "compat mode" can safely default to false
   private COMPLIANT_AGENTS = StaticArray[/Google-Calendar-Importer/]
 
@@ -43,17 +40,10 @@ class TCal::Handler
     if (cache = @caches[compat_mode]?) && Time.utc - cache.time < CACHE_TIME
       response << cache.content
     else
-      HTTP::Client.get(ALERTS_URL) do |api_response|
-        case api_response.status
-        when HTTP::Status::OK
-          alerts = TCal::JSONAPI::Response.from_json(api_response.body_io).data
-          calendar = TCal::Calendar.new(alerts, compat_mode).to_s
-          @caches[compat_mode] = Cache.new(calendar, Time.utc)
-          response << calendar
-        else
-          raise "Unexpected API response: #{api_response.body_io.gets_to_end}"
-        end
-      end
+      alerts = AlertsAPI.get!
+      calendar = Calendar.new(alerts, compat_mode).to_s
+      @caches[compat_mode] = Cache.new(calendar, Time.utc)
+      response << calendar
     end
   end
 end
