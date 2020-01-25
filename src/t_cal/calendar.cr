@@ -23,11 +23,7 @@ class TCal::Calendar
     @alerts.each do |alert|
       io.puts "BEGIN:VEVENT"
       io.puts "UID:tcal-v#{VERSION}-#{alert.id}"
-      io.puts "SEQUENCE:#{alert.updated_at.to_unix}"
-      io.puts "SUMMARY:#{alert.service_effect}"
-      io.puts "DESCRIPTION:#{alert.header}"
-      io.puts "URL:#{alert.url}" if !alert.url.nil?
-      io.puts "DTSTAMP:#{alert.updated_at.to_ical}"
+      output_common_fields(io, alert)
 
       periods = condense_periods(alert.definite_active_periods)
       io.puts "DTSTART:#{periods.first.start.to_ical}"
@@ -49,16 +45,20 @@ class TCal::Calendar
       compat_condense_periods(alert.definite_active_periods).each do |period|
         io.puts "BEGIN:VEVENT"
         io.puts "UID:tcal-v#{VERSION}-#{alert.id}-#{period.start.to_unix}"
-        io.puts "SEQUENCE:#{alert.updated_at.to_unix}"
-        io.puts "SUMMARY:#{alert.service_effect}"
-        io.puts "DESCRIPTION:#{alert.header}"
-        io.puts "URL:#{alert.url}" if !alert.url.nil?
-        io.puts "DTSTAMP:#{alert.updated_at.to_ical}"
+        output_common_fields(io, alert)
         io.puts period.start.to_ical("DTSTART")
         io.puts period.end.to_ical("DTEND") if period.start != period.end
         io.puts "END:VEVENT"
       end
     end
+  end
+
+  private def output_common_fields(io, alert)
+    io.puts "SEQUENCE:#{alert.updated_at.to_unix}"
+    io.puts "SUMMARY:#{alert.service_effect}"
+    io.puts "DESCRIPTION:#{alert.header}"
+    io.puts "URL:#{alert.url}" if !alert.url.nil?
+    io.puts "DTSTAMP:#{alert.updated_at.to_ical}"
   end
 
   private def condense_periods(periods)
