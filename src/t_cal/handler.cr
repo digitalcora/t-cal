@@ -2,19 +2,34 @@ require "http/server/handler"
 require "./alerts_api"
 require "./calendar"
 
+# HTTP handler (see `HTTP::Handler`) that serves iCal data for MBTA alerts.
+# Handles the request if the path is `/alerts.ics` or `/alerts.txt`, with the
+# response content-type determined by the "extension".
+#
+# If a `compat` query parameter is present and is the exact string `true` or
+# `false`, the "compatible" calendar generation (see `TCal::Calendar`) will be
+# enabled or disabled respectively. Otherwise, the mode is chosen by comparing
+# the `User-Agent` header to a hard-coded list of known RFC-compliant apps. The
+# header is also logged, to aid in adding it to the list if needed.
+#
+# Response bodies are cached in memory for a short time, to avoid hammering the
+# MBTA API used to generate the calendar.
 class TCal::Handler
   include HTTP::Handler
 
   private CACHE_TIME = Time::Span.new(hours: 0, minutes: 1, seconds: 0)
-  # User-Agents for which "compat mode" can safely default to false
+
   private COMPLIANT_AGENTS = StaticArray[/Google-Calendar-Importer/]
 
-  private record Cache, content : String, time : Time
+  # :nodoc:
+  record Cache, content : String, time : Time
 
+  # Creates a handler instance that will output logs to `log_io`.
   def initialize(@log_io : IO)
     @caches = {} of Bool => Cache
   end
 
+  # :nodoc:
   def call(context)
     if context.request.path =~ /^\/alerts\.(ics|txt)$/
       context.response.content_type =

@@ -1,16 +1,38 @@
 require "./period"
 require "./v3_api"
 
+# Generates an iCal calendar from a collection of MBTA Alerts.
+# See [RFC5545](https://tools.ietf.org/html/rfc5545) for the iCal spec.
+#
+# Events are generated based on the `active_period` of alerts. For a cleaner
+# calendar view, early-morning and late-night times are "snapped" to the nearest
+# day boundary, and contiguous time periods (after snapping) are combined. This
+# results in most "start to end of service" alerts appearing as all-day events.
+#
+# Events can be generated in two modes: a regular mode and a "compat" mode. In
+# the former, each alert is output as a single event, with recurrences specified
+# using `RDATE;VALUE=PERIOD`. In the latter, each "chunk" of an alert is output
+# as a separate event, where chunks must either A) start and end on the same
+# day, or B) start and end on day boundaries, in which case the endpoints are
+# specified using `VALUE=DATE`.
+#
+# "Compat" mode is intended for calendar apps that don't support `VALUE=PERIOD`,
+# and/or have an obtrusive presentation of day-spanning events with arbitrary
+# start and end times. Since these two categories tend to overlap, the changes
+# needed to support them are combined in one mode.
 class TCal::Calendar
   @alerts : Array(V3API::Alert)
 
-  private VERSION = 1 # Increment to invalidate existing UIDs
+  private VERSION = 1 # Increment when event output logic is changed
 
-  def initialize(alerts, @compat_mode : Bool)
+  # Creates a calendar instance.
+  # `compat_mode` controls whether "compatible" event output will be used.
+  def initialize(alerts : Array(V3API::Alert), @compat_mode : Bool)
     @alerts = alerts.select(&.definite_active_periods.any?)
   end
 
-  def to_s(io)
+  # Writes the iCal data to the specified `IO`.
+  def to_s(io : IO) : Nil
     io.puts "BEGIN:VCALENDAR"
     io.puts "VERSION:2.0"
     io.puts "PRODID:-//TCal//NONSGML MBTA Disruptions Calendar//EN"

@@ -1,13 +1,17 @@
 require "json"
 require "./period"
 
+# Contains structs for loading JSON data from the MBTA's V3 API.
+# See also the [API reference](https://api-v3.mbta.com/docs/swagger/index.html).
 module TCal::V3API
+  # The JSON:API document returned from the Alerts endpoint.
   struct AlertsResponse
     include JSON::Serializable
 
     getter data : Array(Alert)
   end
 
+  # An Alert resource.
   struct Alert
     include JSON::Serializable
 
@@ -16,6 +20,10 @@ module TCal::V3API
     forward_missing_to @attributes
   end
 
+  # The attributes of an `Alert` resource.
+  #
+  # The `active_period` attribute is remapped to `active_periods` to align with
+  # the convention that collections have plural names.
   struct AlertAttributes
     include JSON::Serializable
 
@@ -27,13 +35,15 @@ module TCal::V3API
     getter updated_at : Time
     getter url : String?
 
-    def definite_active_periods
+    # Returns the `active_periods` that have defined end times.
+    def definite_active_periods : Array(TimePeriod)
       active_periods
         .select { |period| !period.end.nil? }
         .map { |period| TimePeriod.new(period.start, period.end.not_nil!) }
     end
   end
 
+  # An item in `AlertAttributes#active_periods`.
   struct ActivePeriod
     include JSON::Serializable
 
