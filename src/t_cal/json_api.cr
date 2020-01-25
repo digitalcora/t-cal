@@ -1,4 +1,5 @@
 require "json"
+require "./period"
 
 module TCal::JSONAPI
   class Response
@@ -19,7 +20,7 @@ module TCal::JSONAPI
     include JSON::Serializable
 
     @[JSON::Field(key: "active_period")]
-    getter active_periods : Array(ActivePeriod)
+    getter active_periods : Array(AlertPeriod)
     getter effect : String
     getter header : String
     getter service_effect : String
@@ -27,21 +28,19 @@ module TCal::JSONAPI
     getter url : String?
 
     @[JSON::Field(ignore: true)]
-    @_definite_active_periods : Array(DefinitePeriod)?
+    @_definite_active_periods : Array(TimePeriod)?
 
     def definite_active_periods
       @_definite_active_periods ||= active_periods
         .select { |period| !period.end.nil? }
-        .map { |period| DefinitePeriod.new(period.start, period.end.not_nil!) }
+        .map { |period| TimePeriod.new(period.start, period.end.not_nil!) }
     end
   end
 
-  class ActivePeriod
+  class AlertPeriod
     include JSON::Serializable
 
     getter start : Time
     getter end : Time?
   end
-
-  record DefinitePeriod, start : Time, end : Time
 end
