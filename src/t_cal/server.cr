@@ -1,5 +1,4 @@
 require "http/server"
-require "http/server/handler"
 require "logger"
 require "./handler"
 require "./root_handler"
