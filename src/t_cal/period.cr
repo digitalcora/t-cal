@@ -59,5 +59,9 @@ module TCal
     def to_date_period
       DatePeriod.new(@start.to_date, @end.to_date)
     end
+
+    def to_ical
+      "#{@start.to_ical}/#{@end.to_ical}"
+    end
   end
 end

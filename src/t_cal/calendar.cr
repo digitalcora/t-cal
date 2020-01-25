@@ -30,10 +30,8 @@ class TCal::Calendar
       io.puts "DTEND:#{periods.first.end.to_ical}"
 
       if periods.size > 1
-        recurrences = periods.skip(1).map do |period|
-          "#{period.start.to_ical}/#{period.end.to_ical}"
-        end
-        io.puts "RDATE;VALUE=PERIOD:#{recurrences.join(",")}"
+        recurrences = periods.skip(1).map(&.to_ical).join(",")
+        io.puts "RDATE;VALUE=PERIOD:#{recurrences}"
       end
 
       io.puts "END:VEVENT"
