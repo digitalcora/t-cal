@@ -1,8 +1,8 @@
-require "./json_api"
 require "./period"
+require "./v3_api"
 
 class TCal::Calendar
-  @alerts : Array(JSONAPI::Alert)
+  @alerts : Array(V3API::Alert)
 
   private VERSION = 1 # Increment to invalidate existing UIDs
 

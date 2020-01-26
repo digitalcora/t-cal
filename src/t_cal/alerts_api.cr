@@ -1,5 +1,5 @@
 require "http/client"
-require "./json_api"
+require "./v3_api"
 
 module TCal::AlertsAPI
   private URL =
@@ -11,7 +11,7 @@ module TCal::AlertsAPI
   def self.get!
     HTTP::Client.get(URL) do |response|
       if response.status == HTTP::Status::OK
-        JSONAPI::Response.from_json(response.body_io).data
+        V3API::AlertsResponse.from_json(response.body_io).data
       else
         raise "Unexpected response: #{response.body_io.gets_to_end}"
       end

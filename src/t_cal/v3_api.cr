@@ -1,8 +1,8 @@
 require "json"
 require "./period"
 
-module TCal::JSONAPI
-  class Response
+module TCal::V3API
+  class AlertsResponse
     include JSON::Serializable
 
     getter data : Array(Alert)
@@ -20,7 +20,7 @@ module TCal::JSONAPI
     include JSON::Serializable
 
     @[JSON::Field(key: "active_period")]
-    getter active_periods : Array(AlertPeriod)
+    getter active_periods : Array(ActivePeriod)
     getter effect : String
     getter header : String
     getter service_effect : String
@@ -37,7 +37,7 @@ module TCal::JSONAPI
     end
   end
 
-  class AlertPeriod
+  class ActivePeriod
     include JSON::Serializable
 
     getter start : Time
