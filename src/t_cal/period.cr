@@ -13,7 +13,7 @@ module TCal
       else
         last = others.pop
 
-        if last.is_a?(T)
+        if last.is_a?(T) && last.end == @start
           others << new(last.start, @end)
         else
           others << last << self
@@ -40,9 +40,7 @@ module TCal
     end
 
     def snap_to_midnight
-      new_start = @start.hour < EARLY_HOUR ? @start.at_beginning_of_day : @start
-      new_end = @end.hour >= LATE_HOUR ? @end.at_beginning_of_day : @end
-
+      new_start, new_end = snap_time(@start), snap_time(@end)
       new_start == @start && new_end == @end ? self : new(new_start, new_end)
     end
 
@@ -62,6 +60,14 @@ module TCal
 
     def to_ical
       "#{@start.to_ical}/#{@end.to_ical}"
+    end
+
+    private def snap_time(time)
+      case time.hour
+      when .< EARLY_HOUR then time.at_beginning_of_day
+      when .>= LATE_HOUR then time.shift(days: 1).at_beginning_of_day
+      else                    time
+      end
     end
   end
 end
