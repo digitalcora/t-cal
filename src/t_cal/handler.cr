@@ -20,23 +20,24 @@ class TCal::Handler
       context.response.content_type =
         ($~[1] == "ics" ? "text/calendar" : "text/plain")
 
-      compat_mode =
-        case context.request.query_params["compat"]?
-        when "true"  then true
-        when "false" then false
-        else
-          user_agent = context.request.headers["user-agent"]?
-          @log_io.puts "User-Agent: #{user_agent}"
-          COMPLIANT_AGENTS.none? { |agent| user_agent =~ agent }
-        end
-
-      handle(context.response, compat_mode)
+      respond(context.response, compat_mode?(context.request))
     else
       call_next(context)
     end
   end
 
-  private def handle(response, compat_mode)
+  private def compat_mode?(request)
+    case request.query_params["compat"]?
+    when "true"  then true
+    when "false" then false
+    else
+      user_agent = request.headers["user-agent"]?
+      @log_io.puts "User-Agent: #{user_agent}"
+      COMPLIANT_AGENTS.none? { |agent| user_agent =~ agent }
+    end
+  end
+
+  private def respond(response, compat_mode)
     if (cache = @caches[compat_mode]?) && Time.utc - cache.time < CACHE_TIME
       response << cache.content
     else
