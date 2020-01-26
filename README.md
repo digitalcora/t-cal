@@ -1,16 +1,23 @@
-# TCal
+# 📅 TCal
 
 Generates an iCal feed of planned service disruptions on MBTA rapid transit.
 
-* **Included:** Blue, Green, Orange, Red
-* **Not included:** Buses, Commuter Rail, Ferries
+<!-- MarkdownTOC autolink=true levels=1,2 -->
+
+- [ℹ How to use](#%E2%84%B9-how-to-use)
+- [⚠ Limitations](#%E2%9A%A0-limitations)
+- [💬 Report an issue](#%F0%9F%92%AC-report-an-issue)
+- [⚙ Advanced usage](#%E2%9A%99-advanced-usage)
+- [👩🏻‍💻 About the author](#%F0%9F%91%A9%F0%9F%8F%BB%E2%80%8D%F0%9F%92%BB-about-the-author)
+
+<!-- /MarkdownTOC -->
 
 
-## How to use
+## ℹ How to use
 
 **`https://t-cal.herokuapp.com/alerts.ics`**
 
-⬆ Copy this iCal URL and add it to your calendar app.
+↑ Copy this iCal URL and add it to your calendar app.
 
 The process for doing this varies wildly, but in the end you're looking for a
 box you can paste a URL into (_not_ something that asks you to upload a file).
@@ -18,7 +25,7 @@ Look for words like "feed", "sync", or "subscribe". If you're stuck, try a web
 search for _"add ical feed to `<calendar app name>`"_.
 
 
-## Limitations
+## ⚠ Limitations
 
 * The calendar only shows disruptions on rapid transit lines (Blue, Green,
   Orange, Red). If you need to know about Commuter Rail or bus disruptions, try
@@ -35,7 +42,7 @@ search for _"add ical feed to `<calendar app name>`"_.
   most alerts for the official timing.
 
 
-## Report an issue
+## 💬 Report an issue
 
 The calendar is generated automatically from MBTA alerts data. If you notice a
 mistake or inconsistency, first check whether it also appears in the [alerts on
@@ -51,7 +58,7 @@ reported. If not, feel free to [submit a new one][new-issue]!
 [new-issue]: https://github.com/digitalcora/t-cal/issues/new
 
 
-## Advanced usage
+## ⚙ Advanced usage
 
 ### Text format
 
@@ -75,17 +82,17 @@ on the Nice List below, please do [file an issue] to have it added!
 
 [file an issue]: https://github.com/digitalcora/t-cal/issues/new
 
-#### Known to support `VALUE=PERIOD`
+#### Known to support `PERIOD`:
 
 * Google Calendar
 
-#### Known to require compat mode
+#### Known to require compat mode:
 
 * Apple Calendar
 * Outlook Web App
 
 
-## About the author
+## 👩🏻‍💻 About the author
 
 I'm Cora, a software engineer on the MBTA's [Customer Technology][ctd] team. I
 created this project in my spare time using our [public data and APIs][devs].
