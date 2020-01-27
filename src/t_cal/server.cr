@@ -1,7 +1,7 @@
 require "http/server"
 require "logger"
 require "./handler"
-require "./root_handler"
+require "./site/handler"
 
 # The TCal HTTP server.
 class TCal::Server
@@ -20,7 +20,7 @@ class TCal::Server
       HTTP::LogHandler.new(@log_io),
       HTTP::CompressHandler.new,
       TCal::Handler.new(@log_io),
-      TCal::RootHandler.new,
+      TCal::Site::Handler.new,
     ])
   end
 

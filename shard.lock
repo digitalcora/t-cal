@@ -1,0 +1,6 @@
+version: 1.0
+shards:
+  markd:
+    github: icyleaf/markd
+    version: 0.2.0
+
