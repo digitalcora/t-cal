@@ -1,6 +1,13 @@
-# 📅 TCal
+# TCal
 
-An iCal feed of planned service disruptions on MBTA rapid transit.
+<p class="subtitle">
+  An iCal feed of planned service disruptions on MBTA rapid transit.
+</p>
+
+<p class="repo-link">
+  Looking for the
+  <a href="https://github.com/digitalcora/t-cal">GitHub repo</a>?
+</p>
 
 
 ## ℹ How to use
@@ -25,26 +32,27 @@ search for _"add ical feed to `<calendar app name>`"_.
   scale of 0 to 10). This is a balance between over-cluttering the calendar and
   surfacing useful information, and I'm open to tweaking it.
 
-* To create a clean calendar view, TCal performs some "rounding" of time values
-  that are close to a day boundary. This means that, for example, a disruption
-  lasting until "end of service" at 2:30am will appear to end at midnight. Check
-  the link included in most alerts for the official timing.
+* To create a clean calendar view, TCal rounds time values that are close to a
+  day boundary. This means that e.g. a disruption lasting until "end of service"
+  at 2:30am will appear to end at midnight. Most alerts include an mbta.com URL
+  you can check for the official timing.
 
 
 ## 💬 Report an issue
 
-The calendar is generated automatically from MBTA alerts data. If you notice a
-mistake or inconsistency, first check whether it also appears in the [alerts on
-mbta.com]. If it does, please [**report it directly to the MBTA**][report].
+1. Check whether your issue also appears in the [alerts on mbta.com]. If so,
+   please [**report it to the MBTA**][report]. The calendar is auto-generated
+   from alerts data, and I can't fix issues that originate there.
+
+2. Check TCal's **[open issues]** on GitHub to see if your issue has already
+   been reported. If it's there, I know about it and will respond when I can.
+
+3. Otherwise, feel free to [**submit a new issue**][new-issue]! (requires a free
+   GitHub account)
 
 [alerts on mbta.com]: https://mbta.com/alerts/subway
 [report]: https://www.mbta.com/customer-support
-
-Otherwise, check [TCal's open issues][issues] on GitHub to see if your issue has
-already been reported. If not, feel free to [submit a new one][new-issue]!
-(requires a GitHub account)
-
-[issues]: https://github.com/digitalcora/t-cal/issues
+[open issues]: https://github.com/digitalcora/t-cal/issues
 [new-issue]: https://github.com/digitalcora/t-cal/issues/new
 
 
@@ -84,12 +92,10 @@ on the Nice List below, please do [file an issue] to have it added!
 
 ## 💻 About the author
 
-I'm Cora, a software engineer on the MBTA's [Customer Technology][ctd] team.
-This is a spare-time project I created using our [public data and APIs][devs],
+I'm Cora, a software engineer on the MBTA's [Customer Technology][ctd] team. I
+created this project in my spare time using our [public data and APIs][devs],
 partly as an exercise in learning [Crystal] and partly to bring more clarity to
 the MBTA's numerous shuttle diversions.
-
-Perhaps you'd like [the source code](https://github.com/digitalcora/t-cal)?
 
 [ctd]: https://medium.com/mbta-tech
 [devs]: https://www.mbta.com/developers
