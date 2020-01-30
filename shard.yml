@@ -12,7 +12,7 @@ dependencies:
     version: ~> 0.2.0
 
 targets:
-  t_cal:
-    main: src/t_cal.cr
+  server:
+    main: src/main.cr
 
 license: MIT
