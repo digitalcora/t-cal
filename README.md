@@ -33,3 +33,9 @@ The current production instance runs on Heroku. Setup steps:
 2. `heroku stack:set container`
 3. `heroku config:set HOST=0.0.0.0`
 4. `git push heroku master`
+
+The app can use [Rollbar](https://rollbar.com/) on Heroku to record deploys,
+crashes, and some basic metrics. Setup steps:
+
+1. `heroku addons:create rollbar:free`
+2. `heroku labs:enable runtime-dyno-metadata`
