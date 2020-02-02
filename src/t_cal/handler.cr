@@ -17,8 +17,7 @@ require "./calendar"
 class TCal::Handler
   include HTTP::Handler
 
-  private CACHE_TIME = Time::Span.new(hours: 0, minutes: 1, seconds: 0)
-
+  private CACHE_TIME       = Time::Span.new(hours: 0, minutes: 1, seconds: 0)
   private COMPLIANT_AGENTS = StaticArray[/Google-Calendar-Importer/]
 
   # :nodoc:
