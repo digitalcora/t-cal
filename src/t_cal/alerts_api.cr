@@ -16,7 +16,7 @@ module TCal::AlertsAPI
       if response.status == HTTP::Status::OK
         V3API::AlertsResponse.from_json(response.body_io).data
       else
-        raise "Unexpected response: #{response.body_io.gets_to_end}"
+        raise "Unexpected alerts response: #{response.body_io.gets_to_end}"
       end
     end
   end

@@ -9,16 +9,14 @@ require "./calendar"
 # If a `compat` query parameter is present and is the exact string `true` or
 # `false`, the "compatible" calendar generation (see `TCal::Calendar`) will be
 # enabled or disabled respectively. Otherwise, the mode is chosen by comparing
-# the `User-Agent` header to a hard-coded list of known RFC-compliant apps. The
-# header is also logged, to aid in adding it to the list if needed.
+# the `User-Agent` header to a hard-coded list of known calendar apps.
 #
 # Response bodies are cached in memory for a short time, to avoid hammering the
 # MBTA API used to generate the calendar.
 class TCal::Handler
   include HTTP::Handler
 
-  private CACHE_TIME = Time::Span.new(hours: 0, minutes: 1, seconds: 0)
-
+  private CACHE_DURATION   = Time::Span.new(hours: 0, minutes: 1, seconds: 0)
   private COMPLIANT_AGENTS = StaticArray[/Google-Calendar-Importer/]
 
   # :nodoc:
@@ -32,34 +30,46 @@ class TCal::Handler
   # :nodoc:
   def call(context)
     if context.request.path =~ /^\/alerts\.(ics|txt)$/
-      context.response.content_type =
-        ($~[1] == "ics" ? "text/calendar" : "text/plain")
+      extension = $~[1]
+      compat_param = context.request.query_params["compat"]?
+      user_agent = context.request.headers["user-agent"]?
 
-      respond(context.response, compat_mode?(context.request))
+      log_request(extension, compat_param, user_agent)
+
+      context.response.content_type = content_type(extension)
+      context.response << response(compat_mode?(compat_param, user_agent))
     else
       call_next(context)
     end
   end
 
-  private def compat_mode?(request)
-    case request.query_params["compat"]?
+  private def compat_mode?(compat_param, user_agent)
+    case compat_param
     when "true"  then true
     when "false" then false
-    else
-      user_agent = request.headers["user-agent"]?
-      @log_io.puts "User-Agent: #{user_agent}"
-      COMPLIANT_AGENTS.none? { |agent| user_agent =~ agent }
+    else              COMPLIANT_AGENTS.none? { |agent| user_agent =~ agent }
     end
   end
 
-  private def respond(response, compat_mode)
-    if (cache = @caches[compat_mode]?) && Time.utc - cache.time < CACHE_TIME
-      response << cache.content
+  private def content_type(extension)
+    extension == "ics" ? "text/calendar" : "text/plain"
+  end
+
+  private def log_request(extension, compat_param, user_agent)
+    @log_io << "[#{self.class.name}]"
+    @log_io << " format=#{extension}"
+    @log_io << " compat=#{compat_param.nil? ? "auto" : compat_param}"
+    @log_io.puts " agent=#{user_agent.inspect}"
+  end
+
+  private def response(compat_mode)
+    if (cache = @caches[compat_mode]?) && Time.utc - cache.time < CACHE_DURATION
+      cache.content
     else
       alerts = AlertsAPI.get!
       calendar = Calendar.new(alerts, compat_mode).to_s
       @caches[compat_mode] = Cache.new(calendar, Time.utc)
-      response << calendar
+      calendar
     end
   end
 end
