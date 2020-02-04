@@ -20,7 +20,7 @@ module TCal
       else
         last = others.pop
 
-        if last.is_a?(T) && last.end == @start
+        if last.is_a?(Period(T)) && last.end == @start
           others << new(last.start, @end)
         else
           others << last << self
