@@ -5,6 +5,8 @@ require "./site/handler"
 
 # The TCal HTTP server.
 class TCal::Server
+  private ASSETS_DIR = "#{__DIR__}/site/assets"
+
   # Creates a server instance.
   #
   # When started the server will bind to `address` on the specified `port`, and
@@ -21,6 +23,7 @@ class TCal::Server
       HTTP::CompressHandler.new,
       TCal::Handler.new(@log_io),
       TCal::Site::Handler.new,
+      HTTP::StaticFileHandler.new(ASSETS_DIR, directory_listing: false),
     ])
   end
 

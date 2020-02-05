@@ -9,6 +9,8 @@
   <a href="https://github.com/digitalcora/t-cal">GitHub repo</a>?
 </p>
 
+<img class="screenshot" src="/screenshot.png" alt="TCal screenshot">
+
 
 ## ℹ How to use
 
