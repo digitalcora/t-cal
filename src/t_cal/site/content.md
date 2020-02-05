@@ -47,8 +47,8 @@ search for _"add ical feed to `<calendar app name>`"_.
 2. Check TCal's **[open issues]** on GitHub to see if your issue has already
    been reported. If it's there, I know about it and will respond when I can.
 
-3. Otherwise, feel free to [**submit a new issue**][new-issue]! (requires a free
-   GitHub account)
+3. Otherwise, feel free to [**submit a new issue**][new-issue]! _(requires a
+   GitHub account)_
 
 [alerts on mbta.com]: https://mbta.com/alerts/subway
 [report]: https://www.mbta.com/customer-support
@@ -87,6 +87,7 @@ on the Nice List below, please do [file an issue] to have it added!
 #### Known to require compat mode:
 
 * Apple Calendar
+* Fastmail
 * Outlook Web App
 
 
