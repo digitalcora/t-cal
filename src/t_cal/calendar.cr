@@ -23,7 +23,8 @@ require "./v3_api"
 class TCal::Calendar
   @alerts : Array(V3API::Alert)
 
-  private VERSION = 1 # Increment when event output logic is changed
+  # Increment to "update" all events, e.g. when output logic is changed
+  private VERSION = 0
 
   # Creates a calendar instance.
   # `compat_mode` controls whether "compatible" event output will be used.
@@ -44,7 +45,7 @@ class TCal::Calendar
   private def output_events(io)
     @alerts.each do |alert|
       io.puts "BEGIN:VEVENT"
-      io.puts "UID:tcal-v#{VERSION}-#{alert.id}"
+      io.puts "UID:tcal-alert-#{alert.id}"
       output_common_fields(io, alert)
 
       periods = condense_periods(alert.definite_active_periods)
@@ -64,7 +65,7 @@ class TCal::Calendar
     @alerts.each do |alert|
       compat_condense_periods(alert.definite_active_periods).each do |period|
         io.puts "BEGIN:VEVENT"
-        io.puts "UID:tcal-v#{VERSION}-#{alert.id}-#{period.start.to_unix}"
+        io.puts "UID:tcal-compat-#{alert.id}-#{period.start.to_unix}"
         output_common_fields(io, alert)
         io.puts period.start.to_ical("DTSTART")
         io.puts period.end.to_ical("DTEND") if period.start != period.end
@@ -74,11 +75,13 @@ class TCal::Calendar
   end
 
   private def output_common_fields(io, alert)
-    io.puts "SEQUENCE:#{alert.updated_at.to_unix}"
+    timestamp = alert.updated_at.shift(seconds: VERSION)
+
+    io.puts "SEQUENCE:#{timestamp.to_unix}"
+    io.puts "DTSTAMP:#{timestamp.to_ical}"
     io.puts "SUMMARY:#{alert.service_effect}"
     io.puts "DESCRIPTION:#{alert.header}"
     io.puts "URL:#{alert.url}" if !alert.url.nil?
-    io.puts "DTSTAMP:#{alert.updated_at.to_ical}"
   end
 
   private def condense_periods(periods)
