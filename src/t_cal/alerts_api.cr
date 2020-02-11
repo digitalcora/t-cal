@@ -3,7 +3,8 @@ require "./v3_api"
 
 # Fetches the MBTA Alerts used to generate the TCal calendar.
 module TCal::AlertsAPI
-  private URL =
+  private HEADERS = HTTP::Headers{"MBTA-Version" => "2019-07-01"}
+  private URL     =
     "https://api-v3.mbta.com/alerts?" + HTTP::Params.encode({
       "filter[route_type]" => "0,1",
       "filter[severity]"   => "5,6,7,8,9,10",
@@ -12,7 +13,7 @@ module TCal::AlertsAPI
   # Fetches the alerts.
   # On a non-200 response, throws an exception containing the response body.
   def self.get! : Array(V3API::Alert)
-    HTTP::Client.get(URL) do |response|
+    HTTP::Client.get(URL, HEADERS) do |response|
       if response.status == HTTP::Status::OK
         V3API::AlertsResponse.from_json(response.body_io).data
       else
