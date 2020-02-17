@@ -1,0 +1,14 @@
+# Enable all rules that are disabled by default (equivalent to `ameba --all`)
+
+Lint/ComparisonToBoolean:
+  Enabled: true
+
+Layout/LineLength:
+  Enabled: true
+  MaxLength: 80
+
+Style/LargeNumbers:
+  Enabled: true
+
+Style/PredicateName:
+  Enabled: true

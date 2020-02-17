@@ -19,6 +19,7 @@ for your platform.
 
 * Run the server: `crystal src/main.cr`
 * Generate docs: `crystal docs` _(then open `docs/index.html`)_
+* Lint the code: `bin/ameba`
 
 
 ### Production
