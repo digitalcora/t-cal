@@ -34,3 +34,14 @@ The current production instance runs on Heroku. Setup steps:
 2. `heroku stack:set container`
 3. `heroku config:set HOST=0.0.0.0`
 4. `git push heroku master`
+
+
+### Configuration
+
+The server supports these environment variables:
+
+* `HOST` — The network address to listen on. Default value is `127.0.0.1`,
+  meaning the server will only be accessible from localhost. Use `0.0.0.0` to
+  listen on all addresses.
+
+* `PORT` — The TCP port to listen on. Default value is `8080`.
