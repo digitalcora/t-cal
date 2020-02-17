@@ -4,7 +4,7 @@ version: 0.0.1
 authors:
   - Cora Grant <394835+x@users.noreply.github.com>
 
-crystal: 0.32.1
+crystal: 0.33.0
 
 dependencies:
   markd:
