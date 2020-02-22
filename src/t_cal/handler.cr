@@ -19,8 +19,7 @@ class TCal::Handler
   private CACHE_DURATION   = Time::Span.new(hours: 0, minutes: 1, seconds: 0)
   private COMPLIANT_AGENTS = StaticArray[/Google-Calendar-Importer/]
 
-  # :nodoc:
-  record Cache, content : String, time : Time
+  private record Cache, content : String, time : Time
 
   # Creates a handler instance that will output logs to `log_io`.
   def initialize(@log_io : IO)
