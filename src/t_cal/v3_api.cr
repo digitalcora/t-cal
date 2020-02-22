@@ -47,7 +47,20 @@ module TCal::V3API
   struct ActivePeriod
     include JSON::Serializable
 
-    getter start : Time
-    getter end : Time?
+    @start : Time
+    @end : Time?
+
+    # Since we do some adjusting of times, we need a time zone rather than the
+    # UTC offset provided by ISO8601. We can assume times published by the MBTA
+    # are in Eastern time.
+    private TZ = Time::Location.load("America/New_York")
+
+    def start
+      @start.in(TZ)
+    end
+
+    def end
+      @end.try(&.in(TZ))
+    end
   end
 end
