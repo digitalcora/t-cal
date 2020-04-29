@@ -4,11 +4,14 @@
   An iCal feed of planned service disruptions on MBTA rapid transit.
 </p>
 
-<p class="repo-link">
-  Looking for the
-  <a href="https://github.com/digitalcora/t-cal">GitHub repo</a>?
+<p class="screenshot">
+  <img alt="Screenshot of TCal events on Google Calendar" src="/screenshot.png">
 </p>
 
+<p class="repo-link">
+  See also the open-source code
+  <a href="https://github.com/digitalcora/t-cal">on GitHub</a>.
+</p>
 
 ## ℹ How to use
 

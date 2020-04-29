@@ -17,6 +17,10 @@ class TCal::Server
     @server = HTTP::Server.new([
       HTTP::ErrorHandler.new,
       HTTP::LogHandler.new(@log_io),
+      HTTP::StaticFileHandler.new(
+        "#{__DIR__}/site/assets",
+        directory_listing: false
+      ),
       HTTP::CompressHandler.new,
       TCal::Handler.new(@log_io),
       TCal::Site::Handler.new,
