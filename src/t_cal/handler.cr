@@ -1,4 +1,5 @@
 require "http/server/handler"
+require "log"
 require "./alerts_api"
 require "./calendar"
 
@@ -18,11 +19,12 @@ class TCal::Handler
 
   private CACHE_DURATION   = Time::Span.new(hours: 0, minutes: 1, seconds: 0)
   private COMPLIANT_AGENTS = StaticArray[/Google-Calendar-Importer/]
+  private Log              = ::Log.for(self)
 
   private record Cache, content : String, time : Time
 
-  # Creates a handler instance that will output logs to `log_io`.
-  def initialize(@log_io : IO)
+  # Creates a handler instance.
+  def initialize
     @caches = {} of Bool => Cache
   end
 
@@ -55,10 +57,12 @@ class TCal::Handler
   end
 
   private def log_request(extension, compat_param, user_agent)
-    @log_io << "[#{self.class.name}]"
-    @log_io << " format=#{extension}"
-    @log_io << " compat=#{compat_param.nil? ? "auto" : compat_param}"
-    @log_io.puts " agent=#{user_agent.inspect}"
+    Log.info &.emit(
+      "Calendar request",
+      format: extension,
+      compat: compat_param.nil? ? "auto" : compat_param,
+      agent: user_agent
+    )
   end
 
   private def response(compat_mode)

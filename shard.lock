@@ -1,10 +1,10 @@
-version: 1.0
+version: 2.0
 shards:
   ameba:
-    github: crystal-ameba/ameba
+    git: https://github.com/crystal-ameba/ameba.git
     version: 0.12.1
 
   markd:
-    github: icyleaf/markd
+    git: https://github.com/icyleaf/markd.git
     version: 0.2.0
 
