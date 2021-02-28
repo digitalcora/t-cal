@@ -29,7 +29,7 @@ class TCal::Calendar
   # Creates a calendar instance.
   # `compat_mode` controls whether "compatible" event output will be used.
   def initialize(alerts : Array(V3API::Alert), @compat_mode : Bool)
-    @alerts = alerts.select(&.definite_active_periods.any?)
+    @alerts = alerts.reject(&.definite_active_periods.empty?)
   end
 
   # Writes the iCal data to the specified `IO`.
@@ -53,7 +53,7 @@ class TCal::Calendar
       io.puts "DTEND:#{periods.first.end.to_ical}"
 
       if periods.size > 1
-        recurrences = periods.skip(1).map(&.to_ical).join(",")
+        recurrences = periods.skip(1).join(",", &.to_ical)
         io.puts "RDATE;VALUE=PERIOD:#{recurrences}"
       end
 
