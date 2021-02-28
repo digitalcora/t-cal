@@ -101,6 +101,6 @@ created this project in my spare time using our [public data and APIs][devs],
 partly as an exercise in learning [Crystal] and partly to bring more clarity to
 the MBTA's numerous shuttle diversions.
 
-[ctd]: https://medium.com/mbta-tech
+[ctd]: https://ctd.mbta.com/
 [devs]: https://www.mbta.com/developers
 [Crystal]: https://crystal-lang.org/
