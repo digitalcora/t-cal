@@ -7,12 +7,12 @@ An iCal feed of planned service disruptions on MBTA rapid transit.
 
 ### Setup
 
-1.  [`asdf install`](https://github.com/asdf-vm/asdf)
+1. [Install Crystal](https://crystal-lang.org/install/)
 2. `shards install`
 
-If `asdf` doesn't work, check the
-[Crystal install steps](https://crystal-lang.org/install/)
-for your platform.
+[`asdf install`](https://github.com/asdf-vm/asdf) may also be used, but is not
+recommended, since this doesn't install any of the system-level packages Crystal
+depends on.
 
 
 ### Development
@@ -47,5 +47,5 @@ The server supports these environment variables:
 * `PORT` — The TCP port to listen on. Default value is `8080`.
 
 * `LOG_LEVEL` — The log level. Default value is `info`. See the
-  [`Log`](https://crystal-lang.org/api/0.36.1/Log.html) documentation for valid
+  [`Log`](https://crystal-lang.org/api/1.0.0/Log.html) documentation for valid
   log levels.
