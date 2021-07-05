@@ -32,7 +32,7 @@ search for _"add ical feed to `<calendar app name>`"_.
   [**T-Alerts**](https://alerts.mbta.com/).
 
 * The calendar only shows disruptions whose "severity" is 5 or greater (on a
-  scale of 0 to 10). This is a balance between over-cluttering the calendar and
+  scale of 1 to 10). This is a balance between over-cluttering the calendar and
   surfacing useful information, and I'm open to tweaking it.
 
 * To create a clean calendar view, TCal rounds time values that are close to a
