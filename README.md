@@ -47,5 +47,5 @@ The server supports these environment variables:
 * `PORT` — The TCP port to listen on. Default value is `8080`.
 
 * `LOG_LEVEL` — The log level. Default value is `info`. See the
-  [`Log`](https://crystal-lang.org/api/1.0.0/Log.html) documentation for valid
-  log levels.
+  [`Log`](https://crystal-lang.org/api/Log.html) documentation for valid log
+  levels.

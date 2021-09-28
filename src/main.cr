@@ -3,7 +3,7 @@ require "./t_cal/server"
 
 # Entrypoint for starting the TCal web server.
 
-# https://github.com/crystal-lang/crystal/blob/1.0.0/src/log/format.cr#L201
+# https://github.com/crystal-lang/crystal/blob/3184e19/src/log/format.cr#L201
 Log.define_formatter TimelessFormat,
   "#{severity} - #{source(after: ": ")}#{message}" \
   "#{data(before: " -- ")}#{context(before: " -- ")}#{exception}"
