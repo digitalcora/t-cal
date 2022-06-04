@@ -1,4 +1,4 @@
-# Enable all rules that are disabled by default (equivalent to `ameba --all`)
+# Enable all rules that are disabled by default, other than `Style/GuardClause`
 
 Lint/ComparisonToBoolean:
   Enabled: true

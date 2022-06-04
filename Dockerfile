@@ -1,4 +1,4 @@
-FROM crystallang/crystal:1.2.2-alpine
+FROM crystallang/crystal:1.4.1-alpine
 WORKDIR /app
 COPY . .
 RUN shards build --production --release
