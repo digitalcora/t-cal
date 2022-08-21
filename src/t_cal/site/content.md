@@ -96,11 +96,12 @@ on the Nice List below, please do [file an issue] to have it added!
 
 ## 💻 About the author
 
-I'm Cora, a software engineer on the MBTA's [Customer Technology][ctd] team. I
-created this project in my spare time using our [public data and APIs][devs],
-partly as an exercise in learning [Crystal] and partly to bring more clarity to
-the MBTA's numerous shuttle diversions.
+I'm [Cora], a software engineer formerly on the MBTA's
+[Customer Technology][ctd] team. I created this project using the agency's
+[public data and APIs][devs], partly as an exercise in learning [Crystal] and
+partly to bring more clarity to the MBTA's numerous shuttle diversions.
 
+[Cora]: https://digitalcora.net/
 [ctd]: https://ctd.mbta.com/
 [devs]: https://www.mbta.com/developers
 [Crystal]: https://crystal-lang.org/
