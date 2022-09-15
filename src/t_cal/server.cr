@@ -25,7 +25,7 @@ class TCal::Server
       ),
       HTTP::CompressHandler.new,
       TCal::Handlers::Feed.new,
-      TCal::Handlers::Site.new,
+      TCal::Handlers::Site.new(origin),
     ])
   end
 

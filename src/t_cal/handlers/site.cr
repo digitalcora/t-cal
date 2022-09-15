@@ -8,10 +8,11 @@ class TCal::Handlers::Site
   @content : String
 
   # Creates a handler instance.
-  def initialize
+  # The `canonical_origin` is used to construct the iCal URL shown on the page.
+  def initialize(canonical_origin : String)
     content = {{read_file "#{__DIR__}/../site/content.md"}}
     options = Markd::Options.new(smart: true)
-    @content = Markd.to_html(content, options)
+    @content = Markd.to_html(content, options).sub("%ORIGIN%", canonical_origin)
   end
 
   # :nodoc:

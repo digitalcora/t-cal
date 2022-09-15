@@ -15,7 +15,7 @@
 
 ## ℹ How to use
 
-### `https://t-cal.herokuapp.com/alerts.ics`
+### `%ORIGIN%/alerts.ics`
 
 ↑ Copy this iCal URL and add it to your calendar app.
 
