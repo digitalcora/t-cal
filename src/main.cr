@@ -12,4 +12,5 @@ Log.setup_from_env(backend: Log::IOBackend.new(formatter: TimelessFormat))
 STDOUT.sync = true
 host = ENV.fetch("HOST", "127.0.0.1")
 port = ENV.fetch("PORT", "8080").to_i
-TCal::Server.new(host, port).start
+origin = ENV.fetch("ORIGIN", "http://localhost:#{port}")
+TCal::Server.new(host, port, origin).start

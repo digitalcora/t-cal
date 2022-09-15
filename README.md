@@ -46,6 +46,11 @@ The server supports these environment variables:
 
 * `PORT` — The TCP port to listen on. Default value is `8080`.
 
+* `ORIGIN` — The canonical origin (scheme + host + optional port) of the site.
+  When a request includes a `Host` and it is not the canonical origin's host,
+  it will be redirected to the same path at the canonical origin. Default value
+  is `http://localhost` plus the configured `PORT`.
+
 * `LOG_LEVEL` — The log level. Default value is `info`. See the
   [`Log`](https://crystal-lang.org/api/Log.html) documentation for valid log
   levels.
