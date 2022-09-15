@@ -1,7 +1,7 @@
 require "http/server/handler"
 require "log"
-require "./alerts_api"
-require "./calendar"
+require "../alerts_api"
+require "../calendar"
 
 # HTTP handler (see `HTTP::Handler`) that serves iCal data for MBTA alerts.
 # Handles the request if the path is `/alerts.ics` or `/alerts.txt`, with the
@@ -14,7 +14,7 @@ require "./calendar"
 #
 # Response bodies are cached in memory for a short time, to avoid hammering the
 # MBTA API used to generate the calendar.
-class TCal::Handler
+class TCal::Handlers::Feed
   include HTTP::Handler
 
   private CACHE_DURATION   = Time::Span.new(hours: 0, minutes: 1, seconds: 0)
