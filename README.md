@@ -2,7 +2,7 @@
 
 An iCal feed of planned service disruptions on MBTA rapid transit.
 
-ℹ **See the [TCal web site](https://t-cal.herokuapp.com) for usage!**
+ℹ **See the [TCal web site](https://tcal.digitalcora.net) for usage!**
 
 
 ### Setup
@@ -28,13 +28,8 @@ To build a standalone binary `bin/server`:
 
 * `shards build --production --release`
 
-The current production instance runs on Heroku. Setup steps:
-
-1. [`heroku create`](https://devcenter.heroku.com/articles/heroku-cli)
-2. `heroku stack:set container`
-3. `heroku config:set HOST=0.0.0.0`
-4. `git push heroku master`
-
+The current production instance runs on [Fly](https://fly.io/), using the
+`fly.toml` included in the repo.
 
 ### Configuration
 
