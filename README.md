@@ -49,3 +49,9 @@ The server supports these environment variables:
 * `LOG_LEVEL` — The log level. Default value is `info`. See the
   [`Log`](https://crystal-lang.org/api/Log.html) documentation for valid log
   levels.
+
+* `SENTRY_DSN` — If set, unhandled exceptions and other useful data will be
+  reported to [Sentry](https://sentry.io/).
+
+* `SENTRY_ENVIRONMENT` — The environment string used for Sentry reports, if
+  enabled. Default value is `default`.

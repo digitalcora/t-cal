@@ -10,6 +10,9 @@ dependencies:
   markd:
     github: icyleaf/markd
     version: ~> 0.5.0
+  raven:
+    github: Sija/raven.cr
+    version: ~> 1.9.0
 
 development_dependencies:
   ameba:
@@ -19,5 +22,7 @@ development_dependencies:
 targets:
   server:
     main: src/main.cr
+  raven.crash_handler:
+    main: lib/raven/src/crash_handler.cr
 
 license: MIT

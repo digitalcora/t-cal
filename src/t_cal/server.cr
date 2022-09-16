@@ -17,6 +17,7 @@ class TCal::Server
   def initialize(@address : String, @port : Int32, origin : String)
     @server = HTTP::Server.new([
       HTTP::ErrorHandler.new,
+      TCal::Handlers::Errors.new,
       TCal::Handlers::Health.new,
       HTTP::LogHandler.new,
       TCal::Handlers::Canonize.new(origin),

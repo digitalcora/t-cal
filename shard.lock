@@ -4,7 +4,19 @@ shards:
     git: https://github.com/crystal-ameba/ameba.git
     version: 1.1.0
 
+  any_hash:
+    git: https://github.com/sija/any_hash.cr.git
+    version: 0.2.5
+
+  backtracer:
+    git: https://github.com/sija/backtracer.cr.git
+    version: 1.2.2
+
   markd:
     git: https://github.com/icyleaf/markd.git
     version: 0.5.0
+
+  raven:
+    git: https://github.com/sija/raven.cr.git
+    version: 1.9.2
 

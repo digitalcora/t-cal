@@ -1,5 +1,6 @@
 require "http/server/handler"
 require "log"
+require "raven"
 require "../alerts_api"
 require "../calendar"
 
@@ -32,23 +33,31 @@ class TCal::Handlers::Feed
   def call(context)
     if context.request.path =~ /^\/alerts\.(ics|txt)$/
       extension = $~[1]
-      compat_param = context.request.query_params["compat"]?
+      compat_mode = compat_mode(context.request.query_params["compat"]?)
       user_agent = context.request.headers["user-agent"]?
 
-      log_request(extension, compat_param, user_agent)
+      log_request(context.request, extension, compat_mode, user_agent)
 
       context.response.content_type = content_type(extension)
-      context.response << response(compat_mode?(compat_param, user_agent))
+      context.response << response(compat_enable?(compat_mode, user_agent))
     else
       call_next(context)
     end
   end
 
-  private def compat_mode?(compat_param, user_agent)
-    case compat_param
+  private def compat_enable?(compat_mode : Bool, user_agent)
+    compat_mode
+  end
+
+  private def compat_enable?(compat_mode : Nil, user_agent)
+    COMPLIANT_AGENTS.none? { |agent| user_agent =~ agent }
+  end
+
+  private def compat_mode(query_param)
+    case query_param
     when "true"  then true
     when "false" then false
-    else              COMPLIANT_AGENTS.none? { |agent| user_agent =~ agent }
+    else              nil
     end
   end
 
@@ -56,13 +65,26 @@ class TCal::Handlers::Feed
     extension == "ics" ? "text/calendar" : "text/plain"
   end
 
-  private def log_request(extension, compat_param, user_agent)
-    Log.info &.emit(
-      "Calendar request",
-      format: extension,
-      compat: compat_param.nil? ? "auto" : compat_param,
-      agent: user_agent
+  private def flatten_headers(headers : HTTP::Headers)
+    headers.each_with_object({} of String => String) do |(k, v), hash|
+      hash[k] = v.join ", "
+    end
+  end
+
+  private def log_request(request, extension, compat_mode, user_agent)
+    compat_str = (compat_mode.nil? ? "auto" : compat_mode.to_s)
+
+    Log.info &.emit("Requested",
+      extension: extension, compat: compat_str, agent: user_agent)
+
+    event = Raven::Event.from("CalendarRequest", level: :info)
+    event.tags["feed.extension"] = extension
+    event.tags["feed.compat"] = compat_str
+    event.interface(:http,
+      headers: flatten_headers(request.headers),
+      query_string: request.query
     )
+    spawn { Raven.send_event(event) }
   end
 
   private def response(compat_mode)
