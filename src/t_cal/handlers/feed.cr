@@ -36,7 +36,7 @@ class TCal::Handlers::Feed
       compat_mode = compat_mode(context.request.query_params["compat"]?)
       user_agent = context.request.headers["user-agent"]?
 
-      log_request(context.request, extension, compat_mode, user_agent)
+      log(context.request, compat_mode, user_agent) if extension == "ics"
 
       context.response.content_type = content_type(extension)
       context.response << response(compat_enable?(compat_mode, user_agent))
@@ -71,16 +71,14 @@ class TCal::Handlers::Feed
     end
   end
 
-  private def log_request(request, extension, compat_mode, user_agent)
+  private def log(request, compat_mode, user_agent)
     compat_str = (compat_mode.nil? ? "auto" : compat_mode.to_s)
 
-    Log.info &.emit("Requested",
-      extension: extension, compat: compat_str, agent: user_agent)
+    Log.info &.emit("Requested", compat: compat_str, agent: user_agent)
 
     event = Raven::Event.from("CalendarRequest", level: :info)
     event.tags["feed.agent"] = user_agent
     event.tags["feed.compat"] = compat_str
-    event.tags["feed.extension"] = extension
     event.interface(:http,
       headers: flatten_headers(request.headers),
       query_string: request.query
