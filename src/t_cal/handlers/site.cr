@@ -5,8 +5,6 @@ require "markd"
 class TCal::Handlers::Site
   include HTTP::Handler
 
-  private TEMPLATE_DIR = "#{__DIR__}/../site/"
-
   # Creates a handler instance.
   # The `canonical_origin` is used to construct the iCal URL shown on the page.
   def initialize(canonical_origin : String)
@@ -28,7 +26,7 @@ class TCal::Handlers::Site
       @content = Content.new(canonical_origin)
     end
 
-    ECR.def_to_s(TEMPLATE_DIR + "layout.html.ecr")
+    ECR.def_to_s("#{__DIR__}/site/layout.html.ecr")
   end
 
   private class Content
@@ -38,7 +36,7 @@ class TCal::Handlers::Site
     def to_s(io : IO)
       io <<
         Markd.to_html(
-          ECR.render(TEMPLATE_DIR + "content.md.ecr"),
+          ECR.render("#{__DIR__}/site/content.md.ecr"),
           Markd::Options.new(smart: true)
         )
     end

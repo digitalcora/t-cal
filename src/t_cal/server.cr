@@ -22,7 +22,7 @@ class TCal::Server
       HTTP::LogHandler.new,
       TCal::Handlers::Canonize.new(origin),
       HTTP::StaticFileHandler.new(
-        "#{__DIR__}/site/assets",
+        "#{__DIR__}/assets",
         directory_listing: false
       ),
       HTTP::CompressHandler.new,
