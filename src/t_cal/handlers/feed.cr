@@ -78,8 +78,9 @@ class TCal::Handlers::Feed
       extension: extension, compat: compat_str, agent: user_agent)
 
     event = Raven::Event.from("CalendarRequest", level: :info)
-    event.tags["feed.extension"] = extension
+    event.tags["feed.agent"] = user_agent
     event.tags["feed.compat"] = compat_str
+    event.tags["feed.extension"] = extension
     event.interface(:http,
       headers: flatten_headers(request.headers),
       query_string: request.query
