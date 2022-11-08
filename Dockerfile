@@ -1,6 +1,6 @@
 # == Build stage
 
-FROM crystallang/crystal:1.5.1-alpine AS build
+FROM crystallang/crystal:1.6.2-alpine AS build
 
 # Needed to auto-populate the Sentry release tag from the current commit SHA:
 # https://github.com/Sija/raven.cr/blob/d53319d/src/raven/configuration.cr#L333

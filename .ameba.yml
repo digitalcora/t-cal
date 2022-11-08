@@ -12,3 +12,8 @@ Style/LargeNumbers:
 
 Style/PredicateName:
   Enabled: true
+
+# Disable warnings about `.not_nil!` as we have some legitimate uses for it
+
+Lint/NotNil:
+  Enabled: false

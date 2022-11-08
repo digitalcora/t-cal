@@ -31,6 +31,7 @@ To build a standalone binary `bin/server`:
 The current production instance runs on [Fly](https://fly.io/), using the
 `fly.toml` included in the repo.
 
+
 ### Configuration
 
 The server supports these environment variables:
