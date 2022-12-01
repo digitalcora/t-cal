@@ -21,15 +21,25 @@ require "./v3_api"
 # start and end times. Since these two categories tend to overlap, the changes
 # needed to support them are combined in one mode.
 class TCal::Calendar
-  @alerts : Array(V3API::Alert)
+  @alerts : Array({V3API::Alert::Resource, Color?})
 
   # Increment to "update" all events, e.g. when output logic is changed
   private VERSION = 0
 
   # Creates a calendar instance.
+  #
+  # `routes` is used to apply route-specific colors to applicable events.
   # `compat_mode` controls whether "compatible" event output will be used.
-  def initialize(alerts : Array(V3API::Alert), @compat_mode : Bool)
-    @alerts = alerts.reject(&.definite_active_periods.empty?)
+  def initialize(
+    alerts : Array(V3API::Alert::Resource),
+    routes : Array(V3API::Route::Resource),
+    @compat_mode : Bool
+  )
+    route_colors = routes.map { |route| {route.id, route.color} }.to_h
+
+    @alerts = alerts
+      .reject(&.definite_active_periods.empty?)
+      .map { |alert| {alert, alert_color(alert, route_colors)} }
   end
 
   # Writes the iCal data to the specified `IO`.
@@ -42,11 +52,16 @@ class TCal::Calendar
     io.puts "END:VCALENDAR"
   end
 
+  private def alert_color(alert, route_colors)
+    alert_routes = alert.informed_entities.compact_map(&.route).uniq!
+    route_colors[alert_routes[0]] if alert_routes.size == 1
+  end
+
   private def output_events(io)
-    @alerts.each do |alert|
+    @alerts.each do |alert, color|
       io.puts "BEGIN:VEVENT"
       io.puts "UID:tcal-alert-#{alert.id}"
-      output_common_fields(io, alert)
+      output_common_fields(io, alert, color)
 
       periods = condense_periods(alert.definite_active_periods)
       io.puts "DTSTART:#{periods.first.start.to_ical}"
@@ -62,11 +77,11 @@ class TCal::Calendar
   end
 
   private def output_compat_events(io)
-    @alerts.each do |alert|
+    @alerts.each do |alert, color|
       compat_condense_periods(alert.definite_active_periods).each do |period|
         io.puts "BEGIN:VEVENT"
         io.puts "UID:tcal-compat-#{alert.id}-#{period.start.to_unix}"
-        output_common_fields(io, alert)
+        output_common_fields(io, alert, color)
         io.puts period.start.to_ical("DTSTART")
         io.puts period.end.to_ical("DTEND") if period.start != period.end
         io.puts "END:VEVENT"
@@ -74,7 +89,7 @@ class TCal::Calendar
     end
   end
 
-  private def output_common_fields(io, alert)
+  private def output_common_fields(io, alert, color)
     timestamp = alert.updated_at.shift(seconds: VERSION)
 
     io.puts "SEQUENCE:#{timestamp.to_unix}"
@@ -82,6 +97,7 @@ class TCal::Calendar
     io.puts "SUMMARY:#{alert.service_effect}"
     io.puts "DESCRIPTION:#{alert.header}"
     io.puts "URL:#{alert.url}" if !alert.url.nil?
+    io.puts "COLOR:#{color.to_ical}" if !color.nil?
   end
 
   private def condense_periods(periods)

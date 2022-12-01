@@ -1,66 +1,40 @@
+require "http/client"
 require "json"
-require "./period"
+require "uri"
 
-# Contains structs for loading JSON data from the MBTA's V3 API.
+# Modules for fetching JSON:API data from the MBTA's V3 API.
 # See also the [API reference](https://api-v3.mbta.com/docs/swagger/index.html).
 module TCal::V3API
-  # The JSON:API document returned from the Alerts endpoint.
-  struct AlertsResponse
-    include JSON::Serializable
+  private BASE_URI = {scheme: "https", host: "api-v3.mbta.com"}
+  private HEADERS  = HTTP::Headers{"MBTA-Version" => "2021-01-09"}
 
-    getter data : Array(Alert)
-  end
-
-  # An Alert resource.
-  struct Alert
-    include JSON::Serializable
-
-    getter id : String
-    getter attributes : AlertAttributes
-    forward_missing_to @attributes
-  end
-
-  # The attributes of an `Alert` resource.
+  # Defines a `self.all!` method that calls a V3 API "index" endpoint.
   #
-  # The `active_period` attribute is remapped to `active_periods` to align with
-  # the convention that collections have plural names.
-  struct AlertAttributes
-    include JSON::Serializable
+  # `path` is the absolute path of the endpoint. `resource` is the class for
+  # deserializing resource instances.
+  macro def_endpoint(path, resource)
+    private struct Response
+      include JSON::Serializable
+      getter data : Array({{resource}})
+    end
 
-    @[JSON::Field(key: "active_period")]
-    getter active_periods : Array(ActivePeriod)
-    getter effect : String
-    getter header : String
-    getter service_effect : String
-    getter updated_at : Time
-    getter url : String?
-
-    # Returns the `active_periods` that have defined end times.
-    def definite_active_periods : Array(TimePeriod)
-      active_periods
-        .select { |period| !period.end.nil? }
-        .map { |period| TimePeriod.new(period.start, period.end.not_nil!) }
+    # Fetches all `{{resource}}` matching the given filters.
+    # Raises an exception on a non-200 response from the API.
+    def self.all!(filters = {} of String => String) : Array({{resource}})
+      params = filters.transform_keys { |key| "filter[#{key}]" }
+      V3API.fetch!({{path}}, params) { |json| Response.from_json(json).data }
     end
   end
 
-  # An item in `AlertAttributes#active_periods`.
-  struct ActivePeriod
-    include JSON::Serializable
+  protected def self.fetch!(path : String, params = {} of String => String)
+    uri = URI.new(**BASE_URI, path: path, query: URI::Params.encode(params))
 
-    @start : Time
-    @end : Time?
-
-    # Since we do some adjusting of times, we need a time zone rather than the
-    # UTC offset provided by ISO8601. We can assume times published by the MBTA
-    # are in Eastern time.
-    private TZ = Time::Location.load("America/New_York")
-
-    def start
-      @start.in(TZ)
-    end
-
-    def end
-      @end.try(&.in(TZ))
+    HTTP::Client.get(uri, HEADERS) do |response|
+      if response.status == HTTP::Status::OK
+        yield response.body_io
+      else
+        raise "Unexpected response: #{response.body_io.gets_to_end}"
+      end
     end
   end
 end
