@@ -1,7 +1,7 @@
 require "http/server/handler"
 require "log"
 require "raven"
-require "../calendar"
+require "../calendar/ical"
 require "../v3_api/alert"
 require "../v3_api/route"
 
@@ -10,30 +10,14 @@ require "../v3_api/route"
 # response content-type determined by the "extension".
 #
 # If a `compat` query parameter is present and is the exact string `true` or
-# `false`, the "compatible" calendar generation (see `TCal::Calendar`) will be
-# enabled or disabled respectively. Otherwise, the mode is chosen by comparing
-# the `User-Agent` header to a hard-coded list of known calendar apps.
-#
-# Response bodies are cached in memory for a short time, to avoid hammering the
-# MBTA API used to generate the calendar.
+# `false`, the "compatible" calendar generation (see `TCal::Calendar::ICal`)
+# will be enabled or disabled. Otherwise, the mode is chosen by comparing the
+# `User-Agent` header to a hard-coded list of known calendar apps.
 class TCal::Handlers::Feed
   include HTTP::Handler
 
-  private ALERT_FILTERS = {
-    "route_type" => "0,1",
-    "severity"   => "5,6,7,8,9,10",
-  }
-
-  private CACHE_DURATION   = Time::Span.new(hours: 0, minutes: 1, seconds: 0)
   private COMPLIANT_AGENTS = StaticArray[/Google-Calendar-Importer/]
   private Log              = ::Log.for(self)
-
-  private record Cache, content : String, time : Time
-
-  # Creates a handler instance.
-  def initialize
-    @caches = {} of Bool => Cache
-  end
 
   # :nodoc:
   def call(context)
@@ -44,8 +28,12 @@ class TCal::Handlers::Feed
 
       log(context.request, compat_mode, user_agent) if extension == "ics"
 
+      alerts = V3API.calendar_alerts_with_routes
+      compat_enable = compat_enable?(compat_mode, user_agent)
+      calendar = Calendar::ICal.new(alerts, compat_enable)
+
       context.response.content_type = content_type(extension)
-      context.response << response(compat_enable?(compat_mode, user_agent))
+      context.response << calendar
     else
       call_next(context)
     end
@@ -90,20 +78,5 @@ class TCal::Handlers::Feed
       query_string: request.query
     )
     spawn { Raven.send_event(event) }
-  end
-
-  private def response(compat_mode)
-    if (cache = @caches[compat_mode]?) && Time.utc - cache.time < CACHE_DURATION
-      cache.content
-    else
-      alerts = V3API::Alert.all!(ALERT_FILTERS)
-      route_ids =
-        alerts.flat_map(&.informed_entities).compact_map(&.route).uniq!
-      routes = V3API::Route.all!({"id" => route_ids.join(",")})
-
-      calendar = Calendar.new(alerts, routes, compat_mode).to_s
-      @caches[compat_mode] = Cache.new(calendar, Time.utc)
-      calendar
-    end
   end
 end

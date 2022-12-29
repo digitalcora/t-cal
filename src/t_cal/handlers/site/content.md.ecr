@@ -1,44 +1,31 @@
-# TCal
+## 📅 Subscribe
 
-<p class="subtitle">
-  An iCal feed of planned service disruptions on MBTA rapid transit.
-</p>
-
-<p class="screenshot">
-  <img alt="Screenshot of TCal events on Google Calendar" src="/screenshot.png">
-</p>
-
-<p class="repo-link">
-  See also the open-source code
-  <a href="https://github.com/digitalcora/t-cal">on GitHub</a>.
-</p>
-
-## ℹ How to use
+To get these events in your own calendar, copy this iCal URL and add it to your
+calendar app:
 
 ### `<%= @canonical_origin %>/alerts.ics`
 
-↑ Copy this iCal URL and add it to your calendar app.
-
 The process for doing this varies, but in the end you're looking for a box you
 can paste a URL into (_not_ something that asks you to upload a file). Look for
-words like "feed", "sync", or "subscribe". If you're stuck, try a web search
-for _"add ical feed to `<calendar app name>`"_.
+words like "feed", "sync", or "subscribe". If stuck, try a web search for your
+calendar app name plus _"ical feed"_.
 
 
 ## ⚠ Limitations
 
 * The calendar only shows disruptions on rapid transit lines (Blue, Green,
-  Orange, Red). If you need to know about Commuter Rail or bus disruptions, try
-  [**T-Alerts**](https://alerts.mbta.com/).
+  Orange, Red). To get alerts about Commuter Rail, bus, or ferry disruptions,
+  try [**T-Alerts**](https://alerts.mbta.com/).
 
-* The calendar only shows disruptions whose "severity" is 5 or greater (on a
-  scale of 1 to 10). This is a balance between over-cluttering the calendar and
-  surfacing useful information, and I'm open to tweaking it.
+* The calendar does not show _all_ disruptions on rapid transit. The goal is to
+  surface disruptions that can substantially impact a ride, and are planned in
+  advance (and thus useful to display on a calendar). The filtering is subject
+  to tweaks based on feedback and my observations of the data.
 
-* To create a clean calendar view, TCal rounds time values that are close to a
-  day boundary. This means that e.g. a disruption lasting until "end of service"
-  at 2:30am will appear to end at midnight. Most alerts include an mbta.com URL
-  you can check for the official timing.
+* When disruptions start or end near the boundaries of the MBTA "service day"
+  (~4:30am to ~2:30am), TCal rounds these times to midnight so calendar apps
+  will display them as "all-day" events. Most disruptions include the official
+  timing in the description.
 
 
 ## 💬 Report an issue
@@ -61,37 +48,46 @@ for _"add ical feed to `<calendar app name>`"_.
 
 ## ⚙ Advanced usage
 
+The iCal feed supports a few options for the technically inclined:
+
 ### Text format
 
-To easily inspect the iCal output in a browser, replace `.ics` with `.txt` in
-the URL and the calendar will be served as text.
+To inspect the iCal data directly in your browser, replace `.ics` with `.txt` in
+the URL.
 
 ### Compat mode
 
-The ideal version of the calendar uses [`RDATE;VALUE=PERIOD`][rdate] to express
-each disruption as a single recurring event. Unfortunately many calendar apps
-don't support this part of the iCal standard, so unless TCal knows that yours
-does, it defaults to "compat mode", where each time-block of a disruption is a
-separate event.
+Disruptions can have arbitrary sets of dates, so expressing each one as a single
+"recurring" event requires using a part of the iCal standard
+([`RDATE;VALUE=PERIOD`][rdate]) that unfortunately most calendar apps don't
+support. So, TCal includes a "compat mode" which breaks disruptions into
+multiple non-recurring events. This is enabled by default unless TCal detects a
+request from a calendar app I know supports `VALUE=PERIOD`.
 
 [rdate]: https://tools.ietf.org/html/rfc5545#section-3.8.5.2
 
 You can override the auto-detection by adding `?compat=true` or `?compat=false`
-to the end of the URL, which will force compat mode on or off respectively. If
-you find your calendar app works fine without compat mode and it's not already
-on the "supported" list below, please [file an issue] to have it added!
+to the end of the URL. If you experiment with this and find your calendar app
+works with compat mode disabled, please [file an issue] to have it added as a
+supported app.
 
 [file an issue]: https://github.com/digitalcora/t-cal/issues/new
 
-#### Known to support `VALUE=PERIOD`:
+<details>
+  <summary>Click to expand known calendar apps</summary>
 
-* Google Calendar
+  <h4>Support <code>VALUE=PERIOD</code>:</h4>
+  <ul>
+    <li>Google Calendar</li>
+  </ul>
 
-#### Known to require compat mode:
-
-* Apple Calendar
-* Fastmail Calendar
-* Outlook Web App
+  <h4>Require compat mode:</h4>
+  <ul>
+    <li>Apple Calendar</li>
+    <li>Fastmail Calendar</li>
+    <li>Outlook Web App</li>
+  </ul>
+</details>
 
 
 ## 💻 About the author
@@ -110,6 +106,6 @@ partly to bring more clarity to the MBTA's numerous shuttle diversions.
 ## 🔎 Privacy
 
 TCal does not collect any personally identifiable information. When you visit
-this web site or fetch the calendar, HTTP request data (including IP address)
+this web site or fetch the iCal feed, HTTP request data (including IP address)
 may be sent to [Sentry](https://sentry.io/) to help me fix bugs or improve the
 service. This data is automatically deleted after 30 days.

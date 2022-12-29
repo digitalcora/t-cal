@@ -1,5 +1,5 @@
 require "json"
-require "../period"
+require "../period/time_period"
 
 module TCal::V3API::Alert
   V3API.def_endpoint("/alerts", Resource)
@@ -61,17 +61,16 @@ module TCal::V3API::Alert
     @start : Time
     @end : Time?
 
-    # Since we do some adjusting of times, we need a time zone rather than the
-    # UTC offset provided by ISO8601. We can assume times published by the MBTA
-    # are in Eastern time.
-    private TZ = Time::Location.load("America/New_York")
+    # Times from the API only have a UTC offset as per ISO8601, but since we
+    # know the actual time zone the MBTA operates in, we can use that and have
+    # our times behave correctly when shifted across DST boundaries.
 
     def start
-      @start.in(TZ)
+      @start.in(TCal::TZ)
     end
 
     def end
-      @end.try(&.in(TZ))
+      @end.try(&.in(TCal::TZ))
     end
   end
 

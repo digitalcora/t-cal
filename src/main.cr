@@ -1,5 +1,6 @@
 require "log"
 require "raven"
+require "./t_cal"
 require "./t_cal/server"
 
 # Entrypoint for starting the TCal web server.

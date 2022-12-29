@@ -5,6 +5,32 @@ require "uri"
 # Modules for fetching JSON:API data from the MBTA's V3 API.
 # See also the [API reference](https://api-v3.mbta.com/docs/swagger/index.html).
 module TCal::V3API
+  alias AlertsWithRoutes = Array({Alert::Resource, Route::Resource?})
+
+  private CALENDAR_ALERT_FILTERS = {
+    "route_type" => "0,1",
+    "severity"   => "3,4,5,6,7,8,9,10",
+  }
+
+  # One-stop shop for fetching the alerts used with `Calendar` builders.
+  #
+  # Any routes associated with each alert via its `informed_entities` are also
+  # fetched. If an alert has exactly one associated route, it is returned along
+  # with the alert, otherwise the second tuple element is `nil`.
+  def self.calendar_alerts_with_routes : AlertsWithRoutes
+    alerts = Alert.all!(CALENDAR_ALERT_FILTERS)
+    route_ids = alerts.flat_map(&.informed_entities).compact_map(&.route).uniq!
+    routes_by_id = Route.all!({"id" => route_ids.join(",")}).index_by(&.id)
+
+    alerts
+      .reject(&.transient?)
+      .reject(&.definite_active_periods.empty?)
+      .map do |alert|
+        alert_routes = alert.informed_entities.compact_map(&.route).uniq!
+        {alert, (routes_by_id[alert_routes[0]] if alert_routes.size == 1)}
+      end
+  end
+
   private BASE_URI = {scheme: "https", host: "api-v3.mbta.com"}
   private HEADERS  = HTTP::Headers{"MBTA-Version" => "2021-01-09"}
 

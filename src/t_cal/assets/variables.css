@@ -1,0 +1,34 @@
+/* Values from https://github.com/sindresorhus/github-markdown-css#usage */
+
+:root {
+  --body-min-width: 200px;
+  --body-max-width: 980px;
+  --body-padding: 45px;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --body-padding: 15px;
+  }
+}
+
+/*
+See color variable definitions in `github-markdown-css`:
+https://github.com/sindresorhus/github-markdown-css/blob/main/github-markdown.css
+*/
+
+@media (prefers-color-scheme: dark) {
+  :root, ::backdrop {
+    --color-canvas-muted: #2c2f34;
+    --color-dialog-backdrop: #fff3;
+    --color-dialog-shadow: #000c;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root, ::backdrop {
+    --color-canvas-muted: #c5c8cd;
+    --color-dialog-backdrop: #0004;
+    --color-dialog-shadow: #000c;
+  }
+}

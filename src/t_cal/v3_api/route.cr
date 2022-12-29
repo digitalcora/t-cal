@@ -18,5 +18,6 @@ module TCal::V3API::Route
     include JSON::Serializable
 
     getter color : Color
+    getter text_color : Color
   end
 end

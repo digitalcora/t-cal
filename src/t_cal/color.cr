@@ -19,6 +19,11 @@ struct TCal::Color
     initialize(value.read_string)
   end
 
+  # Convert to a CSS color value.
+  def to_css : String
+    "rgb(#{@red}, #{@green}, #{@blue})"
+  end
+
   # Convert to an iCal `COLOR` value.
   #
   # The standard only allows expressing colors as CSS3 color names, so the

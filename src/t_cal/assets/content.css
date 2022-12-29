@@ -1,15 +1,9 @@
 .markdown-body {
   box-sizing: border-box;
-  min-width: 200px;
-  max-width: 980px;
+  min-width: var(--body-min-width);
+  max-width: var(--body-max-width);
   margin: 0 auto;
-  padding: 45px;
-}
-
-@media (max-width: 767px) {
-  .markdown-body {
-    padding: 15px;
-  }
+  padding: var(--body-padding);
 }
 
 .markdown-body h1 {
@@ -21,13 +15,7 @@
   margin-top: 72px;
 }
 
-.repo-link {
-  color: #6a737d;
-  font-size: 80%;
-}
-
 .markdown-body h1,
-.repo-link,
 .screenshot,
 .subtitle {
   text-align: center;

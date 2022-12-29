@@ -1,0 +1,100 @@
+<noscript>
+  <p class="screenshot">
+    <img alt="TCal event shown on Google Calendar" src="/screenshot.png">
+  </p>
+</noscript>
+
+<div
+  id="calendar"
+  x-data="{
+    modalContent: '',
+    page: <%= @initial_page %>,
+    maxPage: <%= @months.size - 1 %>
+  }"
+>
+  <div id="calendar-controls">
+    <button
+      aria-label="previous month"
+      @click="page -= 1"
+      :disabled="page == 0"
+    >❮</button>
+    <button
+      aria-label="next month"
+      @click="page += 1"
+      :disabled="page == maxPage"
+    >❯</button>
+  </div>
+
+  <% @months.each.with_index do |month, month_index| %>
+    <template x-if="page == <%= month_index %>">
+      <div class="month" data-page="<%= month_index %>">
+        <h2><%= month.title %></h2>
+
+        <% month.weeks.each do |week| %>
+          <div class="week">
+            <% week.days.each.with_index do |date, day_index| %>
+              <div
+                class='day-cell <%= "is-today" if date == @today %>'
+                style="--start: <%= day_index + 1 %>; --end: span 1;"
+              ></div>
+
+              <div
+                aria-hidden="true"
+                class='
+                  day-number
+                  <%= "outside-month" if !same_month?(date, month.start) %>
+                '
+              >
+                <%= date.day %>
+              </div>
+            <% end %>
+
+            <% week.events.each do |event| %>
+              <div
+                x-data
+                class="event-container"
+                style="
+                  <% if route = event.route %>
+                    --color: <%= route.text_color.to_css %>;
+                    --bg-color: <%= route.color.to_css %>;
+                  <% end %>
+                "
+              >
+                <a
+                  href="javascript:void(0)"
+                  @click="$root.getElementsByTagName('dialog')[0].showModal()"
+                  class='
+                    event
+                    <%= "starts-this-week" if event.starts_this_week %>
+                    <%= "ends-this-week" if event.ends_this_week %>
+                  '
+                  style="
+                    --start: <%= event.start_column %>;
+                    --end: <%= event.end_column %>;
+                  "
+                >
+                  <%= event.title %>
+                </a>
+
+                <dialog>
+                  <form method="dialog">
+                    <button aria-label="close">×</button>
+                  </form>
+
+                  <h2><%= event.title %></h2>
+                  <p><%= event.description %></p>
+
+                  <% if event.url %>
+                    <p>ℹ <a href="<% event.url %>"><%= event.url %></a></p>
+                  <% end %>
+
+                  <p class="event-alert">Alert ID <%= event.alert.id %></p>
+                </dialog>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </template>
+  <% end %>
+</div>
