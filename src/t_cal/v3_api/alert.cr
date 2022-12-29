@@ -22,6 +22,7 @@ module TCal::V3API::Alert
 
     @[JSON::Field(key: "active_period")]
     getter active_periods : Array(ActivePeriod)
+    getter created_at : Time
     getter effect : String
     getter header : String
     @[JSON::Field(key: "informed_entity")]
@@ -35,6 +36,21 @@ module TCal::V3API::Alert
       active_periods
         .select { |period| !period.end.nil? }
         .map { |period| TimePeriod.new(period.start, period.end.not_nil!) }
+    end
+
+    # Tries to guess whether this alert is "transient" (represents an unplanned
+    # disruption that is not expected to last very long).
+    #
+    # An alert is transient if it has only one active period, with a start time
+    # within 1 hour of the alert's creation timestamp, a definite end time, and
+    # a duration of less than 12 hours. These are indicators that the alert was
+    # likely created in response to a short-term unplanned disruption which was
+    # already happening at the time of creation.
+    def transient? : Bool
+      active_periods.size == 1 &&
+        !active_periods[0].end.nil? &&
+        (created_at - active_periods[0].start).abs <= 1.hour &&
+        active_periods[0].end.not_nil! - active_periods[0].start < 12.hours
     end
   end
 

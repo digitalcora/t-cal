@@ -38,6 +38,7 @@ class TCal::Calendar
     route_colors = routes.map { |route| {route.id, route.color} }.to_h
 
     @alerts = alerts
+      .reject(&.transient?)
       .reject(&.definite_active_periods.empty?)
       .map { |alert| {alert, alert_color(alert, route_colors)} }
   end
