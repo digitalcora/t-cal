@@ -12,6 +12,8 @@ module TCal::V3API
     "severity"   => "3,4,5,6,7,8,9,10",
   }
 
+  private Log = ::Log.for(self)
+
   # One-stop shop for fetching the alerts used with `Calendar` builders.
   #
   # Any routes associated with each alert via its `informed_entities` are also
@@ -45,22 +47,50 @@ module TCal::V3API
     end
 
     # Fetches all `{{resource}}` matching the given filters.
-    # Raises an exception on a non-200 response from the API.
+    #
+    # Maintains an in-memory cache using `Last-Modified`/`If-Modified-Since`
+    # headers. Always checks with the server to ensure the cached data is not
+    # stale, but since 304 responses don't count against the rate limit, this
+    # makes it practical to use anonymous access (which has a very low limit).
+    #
+    # Throws `V3API::RequestError` on an HTTP status other than 200 or 304.
     def self.all!(filters = {} of String => String) : Array({{resource}})
       params = filters.transform_keys { |key| "filter[#{key}]" }
-      V3API.fetch!({{path}}, params) { |json| Response.from_json(json).data }
+      Response.from_json(V3API.fetch!({{path}}, params)).data
     end
   end
 
-  protected def self.fetch!(path : String, params = {} of String => String)
-    uri = URI.new(**BASE_URI, path: path, query: URI::Params.encode(params))
+  class RequestError < Exception
+  end
 
-    HTTP::Client.get(uri, HEADERS) do |response|
-      if response.status == HTTP::Status::OK
-        yield response.body_io
-      else
-        raise "Unexpected response: #{response.body_io.gets_to_end}"
-      end
+  private record CachedResponse, body : String, last_modified : String
+  @@response_cache = {} of String => CachedResponse
+
+  protected def self.fetch!(
+    path : String, params = {} of String => String
+  ) : String
+    query = URI::Params.encode(params)
+    url = URI.new(**BASE_URI, path: path, query: query).to_s
+    headers, cached_response = HEADERS, @@response_cache[url]?
+
+    if cached_response
+      headers = headers.clone
+      headers["If-Modified-Since"] = cached_response.last_modified
+    end
+
+    response = HTTP::Client.get(url, headers)
+
+    case
+    when response.status == HTTP::Status::OK
+      last_modified = response.headers["Last-Modified"]
+      Log.debug &.emit("HTTP 200", last_modified: last_modified)
+      @@response_cache[url] = CachedResponse.new(response.body, last_modified)
+      response.body
+    when response.status == HTTP::Status::NOT_MODIFIED && cached_response
+      Log.debug &.emit("HTTP 304")
+      cached_response.body
+    else
+      raise RequestError.new("HTTP #{response.status.value}: #{response.body}")
     end
   end
 end
