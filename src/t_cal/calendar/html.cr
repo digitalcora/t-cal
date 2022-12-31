@@ -70,15 +70,17 @@ class TCal::Calendar::HTML < TCal::Calendar
 
     # Provides a key for sorting events.
     #
-    # Events are sorted lower when they:
-    # * continue from the previous week or into the next week
+    # Events are sorted earlier:
+    # * when they continue from the previous week and into the next week
+    # * then when they continue from the previous week
     # * then when they start in an earlier column
     # * then when they have no associated route
-    # * then by the ID of their associated route
-    # * then by their title
+    # * then when the ID of their associated route is alphabetically earlier
+    # * then when their title is alphabetically earlier
     def sort_key
       {
-        (starts_this_week || ends_this_week) ? 1 : 0,
+        (!starts_this_week && !ends_this_week) ? 0 : 1,
+        !starts_this_week ? 0 : 1,
         start_column,
         route.nil? ? 0 : 1,
         route.try(&.id) || "",
