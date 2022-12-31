@@ -1,3 +1,4 @@
+require "cache"
 require "http/server/handler"
 require "markd"
 require "../calendar/html"
@@ -11,17 +12,25 @@ class TCal::Handlers::Site
   # Creates a handler instance.
   # The `canonical_origin` is used to construct the iCal URL shown on the page.
   def initialize(@canonical_origin : String)
+    # Perhaps include `today` once this is addressed:
+    # https://github.com/crystal-cache/cache/issues/31
+    @cache = Cache::MemoryStore(String, String)
+      .new(expires_in: 1.minute, compress: false)
   end
 
   # :nodoc:
   def call(context)
     if context.request.path == "/"
+      homepage = @cache.fetch("page") do
+        Homepage.new(
+          canonical_origin: @canonical_origin,
+          alerts: V3API.calendar_alerts_with_routes,
+          today: TCal.now.to_date
+        ).to_s
+      end
+
       context.response.content_type = "text/html"
-      context.response << Homepage.new(
-        canonical_origin: @canonical_origin,
-        alerts: V3API.calendar_alerts_with_routes,
-        today: TCal.now.to_date
-      )
+      context.response << homepage
     else
       call_next(context)
     end

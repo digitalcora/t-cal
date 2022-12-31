@@ -1,3 +1,4 @@
+require "cache"
 require "http/server/handler"
 require "log"
 require "raven"
@@ -5,9 +6,9 @@ require "../calendar/ical"
 require "../v3_api/alert"
 require "../v3_api/route"
 
-# HTTP handler (see `HTTP::Handler`) that serves iCal data for MBTA alerts.
-# Handles the request if the path is `/alerts.ics` or `/alerts.txt`, with the
-# response content-type determined by the "extension".
+# HTTP handler that serves an iCal feed based on MBTA Alerts. Handles the
+# request if the path is `/alerts.ics` or `/alerts.txt`, with the "extension"
+# determining the response content-type.
 #
 # If a `compat` query parameter is present and is the exact string `true` or
 # `false`, the "compatible" calendar generation (see `TCal::Calendar::ICal`)
@@ -19,18 +20,28 @@ class TCal::Handlers::Feed
   private COMPLIANT_AGENTS = StaticArray[/Google-Calendar-Importer/]
   private Log              = ::Log.for(self)
 
+  # Creates a handler instance.
+  def initialize
+    # Should be `(Bool, String)` but:
+    # https://github.com/crystal-cache/cache/issues/31
+    @cache = Cache::MemoryStore(String, String)
+      .new(expires_in: 1.minute, compress: false)
+  end
+
   # :nodoc:
   def call(context)
     if context.request.path =~ /^\/alerts\.(ics|txt)$/
       extension = $~[1]
       compat_mode = compat_mode(context.request.query_params["compat"]?)
       user_agent = context.request.headers["user-agent"]?
+      compat_enable = compat_enable?(compat_mode, user_agent)
 
       log(context.request, compat_mode, user_agent) if extension == "ics"
 
-      alerts = V3API.calendar_alerts_with_routes
-      compat_enable = compat_enable?(compat_mode, user_agent)
-      calendar = Calendar::ICal.new(alerts, compat_enable)
+      calendar = @cache.fetch(compat_enable.to_s) do
+        alerts = V3API.calendar_alerts_with_routes
+        Calendar::ICal.new(alerts, compat_enable).to_s
+      end
 
       context.response.content_type = content_type(extension)
       context.response << calendar

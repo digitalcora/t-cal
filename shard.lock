@@ -12,6 +12,10 @@ shards:
     git: https://github.com/sija/backtracer.cr.git
     version: 1.2.2
 
+  cache:
+    git: https://github.com/crystal-cache/cache.git
+    version: 0.14.0
+
   markd:
     git: https://github.com/icyleaf/markd.git
     version: 0.5.0

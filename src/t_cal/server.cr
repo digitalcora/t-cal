@@ -7,13 +7,9 @@ class TCal::Server
   private Log = ::Log.for(self)
 
   # Creates a server instance.
+  #
   # When started the server will bind to `address` on the specified `port`.
   # The specified canonical `origin` is passed to `TCal::Handlers::Canonize`.
-  #
-  # Included behaviors:
-  # * Catches exceptions and returns a 500 response
-  # * Logs request methods, paths, and execution times
-  # * Gzips responses if the client indicates support
   def initialize(@address : String, @port : Int32, origin : String)
     @server = HTTP::Server.new([
       HTTP::ErrorHandler.new,
