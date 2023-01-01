@@ -23,7 +23,6 @@ module TCal::V3API::Alert
     @[JSON::Field(key: "active_period")]
     getter active_periods : Array(ActivePeriod)
     getter created_at : Time
-    getter effect : String
     getter header : String
     @[JSON::Field(key: "informed_entity")]
     getter informed_entities : Array(InformedEntity)
