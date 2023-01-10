@@ -26,7 +26,7 @@ depends on.
 
 To build a standalone binary `bin/server`:
 
-* `shards build --production --release`
+* `shards build --production --release --static`
 
 The current production instance runs on [Fly](https://fly.io/), using the
 `fly.toml` included in the repo.
