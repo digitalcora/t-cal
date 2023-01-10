@@ -25,15 +25,15 @@ class TCal::Handlers::Canonize
     if !request_host.nil? && request_host != @origin.host
       Log.info &.emit("Redirecting", from: request_host)
 
-      context.response.status = HTTP::Status::MOVED_PERMANENTLY
-      context.response.headers["Location"] =
-        URI.new(
-          scheme: @origin.scheme,
-          host: @origin.host,
-          port: @origin.port,
-          path: context.request.path,
-          query: context.request.query
-        ).to_s
+      location = URI.new(
+        scheme: @origin.scheme,
+        host: @origin.host,
+        port: @origin.port,
+        path: context.request.path,
+        query: context.request.query
+      )
+
+      context.response.redirect(location, HTTP::Status::MOVED_PERMANENTLY)
     else
       call_next(context)
     end
