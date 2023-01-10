@@ -53,12 +53,12 @@
               <div
                 x-data
                 class="event-container"
-                style="
-                  <% if route = event.route %>
-                    --color: <%= route.text_color.to_css %>;
-                    --bg-color: <%= route.color.to_css %>;
-                  <% end %>
-                "
+                <% if colors = event.colors %>
+                  style="
+                    --color: <%= colors.text.to_css %>;
+                    --bg-color: <%= colors.primary.to_css %>;
+                  "
+                <% end %>
               >
                 <a
                   href="javascript:void(0)"

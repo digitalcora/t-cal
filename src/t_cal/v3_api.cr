@@ -5,7 +5,7 @@ require "uri"
 # Modules for fetching JSON:API data from the MBTA's V3 API.
 # See also the [API reference](https://api-v3.mbta.com/docs/swagger/index.html).
 module TCal::V3API
-  alias AlertsWithRoutes = Array({Alert::Resource, Route::Resource?})
+  alias AlertsWithRoutes = Array({Alert::Resource, Array(Route::Resource)})
 
   private CALENDAR_ALERT_FILTERS = {
     "route_type" => "0,1",
@@ -16,9 +16,10 @@ module TCal::V3API
 
   # One-stop shop for fetching the alerts used with `Calendar` builders.
   #
-  # Any routes associated with each alert via its `informed_entities` are also
-  # fetched. If an alert has exactly one associated route, it is returned along
-  # with the alert, otherwise the second tuple element is `nil`.
+  # Any routes present in an alert's `informed_entities` are fetched and
+  # returned alongside it. This is not intended as a useful expression of the
+  # alert's scope, since it ignores all other fields of the informed entities;
+  # it can only convey that an alert affects the given routes in some way.
   def self.calendar_alerts_with_routes : AlertsWithRoutes
     alerts = Alert.all!(CALENDAR_ALERT_FILTERS)
     route_ids = alerts.flat_map(&.informed_entities).compact_map(&.route).uniq!
@@ -28,8 +29,13 @@ module TCal::V3API
       .reject(&.transient?)
       .reject(&.definite_active_periods.empty?)
       .map do |alert|
-        alert_routes = alert.informed_entities.compact_map(&.route).uniq!
-        {alert, (routes_by_id[alert_routes[0]] if alert_routes.size == 1)}
+        {
+          alert,
+          alert
+            .informed_entities
+            .compact_map { |entity| routes_by_id[entity.route]? }
+            .uniq!,
+        }
       end
   end
 

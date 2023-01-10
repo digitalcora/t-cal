@@ -3,7 +3,6 @@ require "../calendar"
 require "../date"
 require "../period/date_period"
 require "../v3_api/alert"
-require "../v3_api/route"
 
 # Converts a collection of MBTA Alerts into a form convenient for rendering a
 # month-view HTML calendar using CSS grids.
@@ -36,7 +35,7 @@ class TCal::Calendar::HTML < TCal::Calendar
   # only includes days within "this" week.
   record Event,
     alert : V3API::Alert::Resource,
-    route : V3API::Route::Resource?,
+    colors : Calendar::RouteColors?,
     period : DatePeriod,
     starts_this_week : Bool,
     ends_this_week : Bool do
@@ -74,16 +73,14 @@ class TCal::Calendar::HTML < TCal::Calendar
     # * when they continue from the previous week and into the next week
     # * then when they continue from the previous week
     # * then when they start in an earlier column
-    # * then when they have no associated route
-    # * then when the ID of their associated route is alphabetically earlier
+    # * then when they have no associated route colors
     # * then when their title is alphabetically earlier
     def sort_key
       {
         (!starts_this_week && !ends_this_week) ? 0 : 1,
         !starts_this_week ? 0 : 1,
         start_column,
-        route.nil? ? 0 : 1,
-        route.try(&.id) || "",
+        colors.nil? ? 0 : 1,
         title,
       }
     end
@@ -91,8 +88,10 @@ class TCal::Calendar::HTML < TCal::Calendar
 
   # Creates a calendar instance.
   # `today` is used to ensure the calendar includes the current date.
-  def initialize(@alerts_with_routes, today : Date)
-    events = @alerts_with_routes.flat_map do |alert, route|
+  def initialize(alerts_with_routes, today : Date)
+    super(alerts_with_routes)
+
+    events = @alerts_with_route_colors.flat_map do |alert, route_colors|
       alert
         .definite_active_periods
         .map(&.snap_to_midnight)
@@ -104,7 +103,7 @@ class TCal::Calendar::HTML < TCal::Calendar
           periods.map do |period|
             Event.new(
               alert: alert,
-              route: route,
+              colors: route_colors,
               period: period,
               starts_this_week: period == periods[0],
               ends_this_week: period == periods[-1],

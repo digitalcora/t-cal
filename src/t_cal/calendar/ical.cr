@@ -26,7 +26,8 @@ class TCal::Calendar::ICal < TCal::Calendar
   # Creates a calendar instance.
   # `compat_mode` controls whether "compatible" event output (see class docs)
   # is used.
-  def initialize(@alerts_with_routes, @compat_mode : Bool)
+  def initialize(alerts_with_routes, @compat_mode : Bool)
+    super(alerts_with_routes)
   end
 
   # Writes the iCal data to the specified `IO`.
@@ -40,7 +41,7 @@ class TCal::Calendar::ICal < TCal::Calendar
   end
 
   private def output_events(io)
-    @alerts_with_routes.each do |alert, route|
+    @alerts_with_route_colors.each do |alert, route|
       io.puts "BEGIN:VEVENT"
       io.puts "UID:tcal-alert-#{alert.id}"
       output_common_fields(io, alert, route)
@@ -59,11 +60,11 @@ class TCal::Calendar::ICal < TCal::Calendar
   end
 
   private def output_compat_events(io)
-    @alerts_with_routes.each do |alert, route|
+    @alerts_with_route_colors.each do |alert, route_colors|
       merge_periods_separate(alert.definite_active_periods).each do |period|
         io.puts "BEGIN:VEVENT"
         io.puts "UID:tcal-compat-#{alert.id}-#{period.start.to_unix}"
-        output_common_fields(io, alert, route)
+        output_common_fields(io, alert, route_colors)
         io.puts period.start.to_ical("DTSTART")
         io.puts period.end.to_ical("DTEND") if period.start != period.end
         io.puts "END:VEVENT"
@@ -71,7 +72,7 @@ class TCal::Calendar::ICal < TCal::Calendar
     end
   end
 
-  private def output_common_fields(io, alert, route)
+  private def output_common_fields(io, alert, route_colors)
     timestamp = alert.updated_at.shift(seconds: VERSION)
 
     io.puts "SEQUENCE:#{timestamp.to_unix}"
@@ -79,7 +80,7 @@ class TCal::Calendar::ICal < TCal::Calendar
     io.puts "SUMMARY:#{alert.service_effect}"
     io.puts "DESCRIPTION:#{alert.header}"
     io.puts "URL:#{alert.url}" if !alert.url.nil?
-    io.puts "COLOR:#{route.color.to_ical}" if !route.nil?
+    io.puts "COLOR:#{route_colors.primary.to_ical}" if !route_colors.nil?
   end
 
   private def merge_periods(alert_periods)
