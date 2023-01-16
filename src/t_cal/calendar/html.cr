@@ -112,8 +112,8 @@ class TCal::Calendar::HTML < TCal::Calendar
         end
     end
 
-    min = {today, events.min_of(&.period.start)}.min
-    max = {today, events.max_of(&.period.end)}.max
+    min = [today, events.min_of?(&.period.start)].compact.min
+    max = [today.shift(days: 1), events.max_of?(&.period.end)].compact.max
     events_by_week = events.group_by(&.period.start.at_beginning_of_sunday_week)
 
     @months = DatePeriod.new(min, max).each_month.map do |month_start|
