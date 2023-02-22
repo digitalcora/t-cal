@@ -1,8 +1,7 @@
 # TCal
 
-An iCal feed of planned service disruptions on MBTA rapid transit.
-
-ℹ **See the [TCal web site](https://tcal.digitalcora.net) for usage!**
+A calendar of planned service disruptions on MBTA rapid transit, provided as a
+web page and an iCal feed. See the live site at: https://tcal.digitalcora.net
 
 
 ### Setup
