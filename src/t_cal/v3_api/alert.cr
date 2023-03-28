@@ -23,6 +23,7 @@ module TCal::V3API::Alert
     @[JSON::Field(key: "active_period")]
     getter active_periods : Array(ActivePeriod)
     getter created_at : Time
+    @description : String?
     getter header : String
     @[JSON::Field(key: "informed_entity")]
     getter informed_entities : Array(InformedEntity)
@@ -35,6 +36,11 @@ module TCal::V3API::Alert
       active_periods
         .select { |period| !period.end.nil? }
         .map { |period| TimePeriod.new(period.start, period.end.not_nil!) }
+    end
+
+    # Normalize DOS-style line breaks found in descriptions.
+    def description : String?
+      @description.try(&.gsub("\r\n", "\n"))
     end
 
     # Tries to guess whether this alert is "transient" (represents an unplanned

@@ -1,3 +1,4 @@
+require "html"
 require "json"
 require "../calendar"
 require "../date"
@@ -37,15 +38,19 @@ class TCal::Calendar::HTML < TCal::Calendar
     starts_this_week : Bool,
     ends_this_week : Bool do
     def title : String
-      alert.service_effect
+      ::HTML.escape(alert.service_effect)
     end
 
     def description : String
-      alert.header
+      ::HTML.escape(alert.header)
+    end
+
+    def details : String?
+      alert.description.try { |desc| ::HTML.escape(desc).gsub("\n", "<br>") }
     end
 
     def url : String?
-      alert.url
+      alert.url.try { |url| ::HTML.escape(url) }
     end
 
     # The 1-based grid column the event starts on.

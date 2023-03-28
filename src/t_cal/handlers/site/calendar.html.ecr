@@ -84,6 +84,10 @@
                   <h2><%= event.title %></h2>
                   <p><%= event.description %></p>
 
+                  <% if event.details %>
+                    <p><%= event.details %></p>
+                  <% end %>
+
                   <% if event.url %>
                     <p>ℹ <a href="<%= event.url %>"><%= event.url %></a></p>
                   <% end %>
