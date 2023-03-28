@@ -23,11 +23,6 @@ struct Time
     to_utc.to_s("%Y%m%dT%H%M%SZ")
   end
 
-  # Returns an iCal property with the given name and this time as its value.
-  def to_ical(prop : String) : String
-    "#{prop}:#{to_ical}"
-  end
-
   enum DayOfWeek
     # Returns the index of this day where 1 is Sunday and 7 is Saturday.
     def sunday_value : Int32

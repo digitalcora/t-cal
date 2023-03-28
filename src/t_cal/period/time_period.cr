@@ -21,13 +21,6 @@ module TCal
       new(@start.at_beginning_of_day, new_end)
     end
 
-    # Returns `true` if this period starts and ends on day boundaries.
-    def all_day? : Bool
-      @start != @end &&
-        @start == @start.at_beginning_of_day &&
-        @end == @end.at_beginning_of_day
-    end
-
     # Iterates over each month in the interval, `#at_beginning_of_month`.
     # Includes the months containing both the start and end of the interval.
     def each_month : Iterator(Time)
@@ -106,11 +99,6 @@ module TCal
     # Converts this period to a `DatePeriod`, discarding the time information.
     def to_date_period : DatePeriod
       DatePeriod.new(@start.to_date, @end.to_date)
-    end
-
-    # Formats this period as an iCal `PERIOD` value.
-    def to_ical : String
-      "#{@start.to_ical}/#{@end.to_ical}"
     end
 
     private def snap_time(time)

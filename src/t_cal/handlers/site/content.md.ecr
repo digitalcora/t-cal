@@ -10,6 +10,9 @@ can paste a URL into (_not_ something that asks you to upload a file). Look for
 words like "feed", "sync", or "subscribe". If stuck, try a web search for your
 calendar app name plus _"ical feed"_.
 
+> Curious about what's in the feed? To inspect it in your browser without being
+> prompted to download a file, replace `.ics` with `.txt` in the URL.
+
 
 ## ⚠ Limitations
 
@@ -22,13 +25,10 @@ calendar app name plus _"ical feed"_.
   advance (and thus useful to display on a calendar). Shuttle buses and station
   closures are typical examples.
 
-* When disruptions start or end near the boundaries of the MBTA "service day"
-  (~4:30am to ~2:30am), the iCal feed rounds the times to midnight so calendar
-  apps will display them as "all-day" events.
-
-* The calendar on this page currently only shows the dates a disruption is
-  scheduled for, ignoring times of day. If the time is something other than
-  "all day", this information is usually included in the description.
+* The calendar does not show the exact time(s) a disruption is scheduled to
+  start and end; all disruptions are shown as "all-day" events. This creates a
+  more readable calendar view (and avoids cluttering your personal calendar, if
+  you subscribe to the feed). Check event descriptions for timing details.
 
 
 ## 💬 Report an issue
@@ -49,51 +49,6 @@ calendar app name plus _"ical feed"_.
 [new-issue]: https://github.com/digitalcora/t-cal/issues/new
 
 
-## ⚙ Advanced usage
-
-The iCal feed supports a few options for the technically inclined:
-
-### Text format
-
-To inspect the iCal data directly in your browser, replace `.ics` with `.txt` in
-the URL.
-
-### Compat mode
-
-Disruptions can have arbitrary sets of dates, so expressing each one as a single
-"recurring" event requires using a part of the iCal standard
-([`RDATE;VALUE=PERIOD`][rdate]) that unfortunately most calendar apps don't
-support. So, TCal includes a "compat mode" which breaks disruptions into
-multiple non-recurring events. This is enabled by default unless TCal detects a
-request from a calendar app I know supports `VALUE=PERIOD`.
-
-[rdate]: https://tools.ietf.org/html/rfc5545#section-3.8.5.2
-
-You can override the auto-detection by adding `?compat=true` or `?compat=false`
-to the end of the URL. If you experiment with this and find your calendar app
-works with compat mode disabled, please [file an issue] to have it added as a
-supported app.
-
-[file an issue]: https://github.com/digitalcora/t-cal/issues/new
-
-<details>
-  <summary>Click to expand known calendar apps</summary>
-
-  <h4>Support <code>VALUE=PERIOD</code>:</h4>
-  <ul>
-    <li>Google Calendar</li>
-  </ul>
-
-  <h4>Require compat mode:</h4>
-  <ul>
-    <li>Apple Calendar</li>
-    <li>Fastmail Calendar</li>
-    <li>Outlook Calendar</li>
-    <li>Proton Calendar</li>
-  </ul>
-</details>
-
-
 ## 💻 About the author
 
 I'm [Cora], a software engineer formerly on the MBTA's
@@ -109,7 +64,8 @@ partly as a tiny public service that fills a niche the MBTA itself does not.
 
 ## 🔎 Privacy
 
-TCal does not collect any personally identifiable information. When you visit
-this web site or fetch the iCal feed, HTTP request data (including IP address)
-may be sent to [Sentry](https://sentry.io/) to help me fix bugs or improve the
-service. This data is automatically deleted after 30 days.
+TCal does not track usage or collect any personally identifying information.
+When you visit this web site or request the iCal feed, data from your HTTP
+request (including IP address) may be temporarily stored in logs or sent to
+[Sentry](https://sentry.io/) to help me fix crashes. This data is automatically
+deleted after 30 days.

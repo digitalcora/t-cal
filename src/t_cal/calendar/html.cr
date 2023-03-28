@@ -6,9 +6,6 @@ require "../v3_api/alert"
 
 # Converts a collection of MBTA Alerts into a form convenient for rendering a
 # month-view HTML calendar using CSS grids.
-#
-# All events are treated as "all-day"; if an alert's active period covers any
-# part of a day, it is considered to occupy that entire day.
 class TCal::Calendar::HTML < TCal::Calendar
   getter months : Array(Month)
 
@@ -91,13 +88,8 @@ class TCal::Calendar::HTML < TCal::Calendar
   def initialize(alerts_with_routes, today : Date)
     super(alerts_with_routes)
 
-    events = @alerts_with_route_colors.flat_map do |alert, route_colors|
-      alert
-        .definite_active_periods
-        .map(&.snap_to_midnight)
-        .map(&.all_day)
-        .map(&.to_date_period)
-        .try { |periods| DatePeriod.merge(periods) }
+    events = @alerts.flat_map do |alert, date_periods, route_colors|
+      date_periods
         .map(&.split_at_sunday)
         .flat_map do |periods|
           periods.map do |period|
