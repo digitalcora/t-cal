@@ -28,7 +28,13 @@
   <% @months.each.with_index do |month, month_index| %>
     <template x-if="page == <%= month_index %>">
       <div class="month" data-page="<%= month_index %>">
-        <h2><%= month.title %></h2>
+        <h2 class="month-label"><%= month.title %></h2>
+
+        <div class="day-labels">
+          <% month.weeks.first.days.each do |date| %>
+            <div class="day-label"><%= date.day_of_week.to_s[0..2] %></div>
+          <% end %>
+        </div>
 
         <% month.weeks.each do |week| %>
           <div class="week">

@@ -2,11 +2,16 @@
   --muted-border: 1px solid var(--color-border-muted);
 }
 
+#calendar h2 {
+  margin-top: 16px;
+}
+
 /* Header+controls */
 
-#calendar h2 {
+#calendar .month-label {
   border-bottom: none;
-  margin-top: 16px;
+  line-height: 1.5;
+  margin-bottom: 0;
 }
 
 #calendar-controls {
@@ -16,6 +21,16 @@
 #calendar-controls button {
   font-size: 1.5rem;
   min-width: 1.5em;
+}
+
+#calendar .day-labels {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+#calendar .day-label {
+  color: var(--color-border-muted);
+  text-align: center;
 }
 
 /* Week grids */
