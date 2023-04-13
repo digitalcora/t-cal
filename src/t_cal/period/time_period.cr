@@ -23,9 +23,15 @@ module TCal
 
     # Iterates over each month in the interval, `#at_beginning_of_month`.
     # Includes the months containing both the start and end of the interval.
+    # Note since the end time is exclusive, if it is exactly at the beginning
+    # of a month, that month will not be included.
     def each_month : Iterator(Time)
       next_time = @start.at_beginning_of_month
       last_time = @end.at_beginning_of_month
+
+      if last_time == @end
+        last_time = last_time.shift(months: -1)
+      end
 
       Iterator.of do
         if next_time > last_time
@@ -40,9 +46,15 @@ module TCal
 
     # Iterates over each week in the interval, `#at_beginning_of_sunday_week`.
     # Includes the weeks containing both the start and end of the interval.
+    # Note since the end time is exclusive, if it is exactly at the beginning
+    # of a week, that week will not be included.
     def each_sunday_week : Iterator(Time)
       next_time = @start.at_beginning_of_sunday_week
       last_time = @end.at_beginning_of_sunday_week
+
+      if last_time == @end
+        last_time = last_time.shift(weeks: -1)
+      end
 
       Iterator.of do
         if next_time > last_time

@@ -114,7 +114,7 @@ class TCal::Calendar::HTML < TCal::Calendar
     events_by_week = events.group_by(&.period.start.at_beginning_of_sunday_week)
 
     @months = DatePeriod.new(min, max).each_month.map do |month_start|
-      month = DatePeriod.new(month_start, month_start.at_end_of_month)
+      month = DatePeriod.new(month_start, month_start.shift(months: 1))
 
       weeks = month.each_sunday_week.map do |week_start|
         events = (events_by_week[week_start]? || [] of Event)
