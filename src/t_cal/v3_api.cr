@@ -9,7 +9,6 @@ module TCal::V3API
 
   private CALENDAR_ALERT_FILTERS = {
     "route_type" => "0,1",
-    "severity"   => "3,4,5,6,7,8,9,10",
   }
 
   private Log = ::Log.for(self)
