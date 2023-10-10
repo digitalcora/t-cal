@@ -1,6 +1,6 @@
 # == Build stage
 
-FROM crystallang/crystal:1.9.2-alpine AS build
+FROM crystallang/crystal:1.10.1-alpine AS build
 
 # Needed to auto-populate the Sentry release tag from the current commit SHA:
 # https://github.com/Sija/raven.cr/blob/d53319d/src/raven/configuration.cr#L333
@@ -15,7 +15,7 @@ RUN shards build --production --release --static
 # == Runtime stage
 
 # Use the same base image as the build stage:
-# https://github.com/crystal-lang/distribution-scripts/blob/0607a70/docker/alpine.Dockerfile#L1
+# https://github.com/crystal-lang/distribution-scripts/blob/f2c1e13/docker/alpine.Dockerfile#L1
 FROM alpine:3.17
 
 RUN apk add --update tzdata

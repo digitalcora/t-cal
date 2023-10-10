@@ -20,11 +20,6 @@ struct Date
     to_time.at_beginning_of_sunday_week.to_date
   end
 
-  # See `Time#at_end_of_month`.
-  def at_end_of_month : self
-    to_time.at_end_of_month.to_date
-  end
-
   # See `Time#day_of_week`.
   def day_of_week : Time::DayOfWeek
     to_time.day_of_week
@@ -50,10 +45,5 @@ struct Date
   # Converts this date to a `Time` at midnight in UTC.
   def to_time : Time
     Time.utc(year, month, day, 0, 0, 0)
-  end
-
-  # Returns the Unix time of this date at midnight in UTC.
-  def to_unix : Int64
-    to_time.to_unix
   end
 end

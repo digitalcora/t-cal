@@ -81,22 +81,6 @@ module TCal
       new(new_start, new_end)
     end
 
-    # Returns the duration of this period.
-    def span : Time::Span
-      @end - @start
-    end
-
-    # Splits this period at day boundaries.
-    def split_at_midnight : Array(self)
-      next_day = @start.shift(days: 1).at_beginning_of_day
-
-      if @start.date != @end.date && @end != next_day
-        [new(@start, next_day)] + new(next_day, @end).split_at_midnight
-      else
-        [self]
-      end
-    end
-
     # Splits this period at Saturday/Sunday boundaries.
     def split_at_sunday : Array(self)
       next_week = @start.shift(weeks: 1).at_beginning_of_sunday_week
