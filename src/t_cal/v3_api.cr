@@ -1,4 +1,5 @@
 require "http/client"
+require "raven"
 require "json"
 require "uri"
 
@@ -57,8 +58,11 @@ module TCal::V3API
     # headers. Always checks with the server to ensure the cached data is not
     # stale, but since 304 responses don't count against the rate limit, this
     # makes it practical to use anonymous access (which has a very low limit).
+    # If the server returns a 5xx error and there is a cached response, returns
+    # it and logs a warning.
     #
-    # Throws `V3API::RequestError` on an HTTP status other than 200 or 304.
+    # Throws `V3API::RequestError` when an unexpected HTTP status is received,
+    # including a 5xx status when there is no cached response.
     def self.all!(filters = {} of String => String) : Array({{resource}})
       params = filters.transform_keys { |key| "filter[#{key}]" }
       Response.from_json(V3API.fetch!({{path}}, params)).data
@@ -66,6 +70,9 @@ module TCal::V3API
   end
 
   class RequestError < Exception
+  end
+
+  private class ServerError < Exception
   end
 
   private record CachedResponse, body : String, last_modified : String
@@ -93,6 +100,10 @@ module TCal::V3API
       response.body
     when response.status == HTTP::Status::NOT_MODIFIED && cached_response
       Log.debug &.emit("HTTP 304")
+      cached_response.body
+    when response.status.server_error? && cached_response
+      Log.warn &.emit("HTTP 5xx", response_body: response.body)
+      Raven.capture(ServerError.new(response.body), level: :warning)
       cached_response.body
     else
       raise RequestError.new("HTTP #{response.status.value}: #{response.body}")
