@@ -20,8 +20,8 @@ class TCal::Calendar::ICal < TCal::Calendar
   private VERSION = 0
 
   # Creates a calendar instance.
-  def initialize(alerts)
-    super(alerts)
+  def initialize
+    super
   end
 
   # Writes the iCal data to the specified `IO`.

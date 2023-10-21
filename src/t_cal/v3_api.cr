@@ -6,38 +6,7 @@ require "uri"
 # Modules for fetching JSON:API data from the MBTA's V3 API.
 # See also the [API reference](https://api-v3.mbta.com/docs/swagger/index.html).
 module TCal::V3API
-  alias AlertsWithRoutes = Array({Alert::Resource, Array(Route::Resource)})
-
-  private CALENDAR_ALERT_FILTERS = {
-    "route_type" => "0,1",
-  }
-
   private Log = ::Log.for(self)
-
-  # One-stop shop for fetching the alerts used with `Calendar` builders.
-  #
-  # Any routes present in an alert's `informed_entities` are fetched and
-  # returned alongside it. This is not intended as a useful expression of the
-  # alert's scope, since it ignores all other fields of the informed entities;
-  # it can only convey that an alert affects the given routes in some way.
-  def self.calendar_alerts_with_routes : AlertsWithRoutes
-    alerts = Alert.all!(CALENDAR_ALERT_FILTERS)
-    route_ids = alerts.flat_map(&.informed_entities).compact_map(&.route).uniq!
-    routes_by_id = Route.all!({"id" => route_ids.join(",")}).index_by(&.id)
-
-    alerts
-      .reject(&.transient?)
-      .reject(&.definite_active_periods.empty?)
-      .map do |alert|
-        {
-          alert,
-          alert
-            .informed_entities
-            .compact_map { |entity| routes_by_id[entity.route]? }
-            .uniq!,
-        }
-      end
-  end
 
   private BASE_URI = {scheme: "https", host: "api-v3.mbta.com"}
   private HEADERS  = HTTP::Headers{"MBTA-Version" => "2021-01-09"}
@@ -45,8 +14,9 @@ module TCal::V3API
   # Defines a `self.all!` method that calls a V3 API "index" endpoint.
   #
   # `path` is the absolute path of the endpoint. `resource` is the class for
-  # deserializing resource instances.
-  macro def_endpoint(path, resource)
+  # deserializing resource instances. `params` are extra parameters that should
+  # be added to all requests.
+  macro def_endpoint(path, resource, params = {} of String => String)
     private struct Response
       include JSON::Serializable
       getter data : Array({{resource}})
@@ -63,8 +33,12 @@ module TCal::V3API
     #
     # Throws `V3API::RequestError` when an unexpected HTTP status is received,
     # including a 5xx status when there is no cached response.
-    def self.all!(filters = {} of String => String) : Array({{resource}})
-      params = filters.transform_keys { |key| "filter[#{key}]" }
+    def self.all!(filters = {} of String => Array(String)) : Array({{resource}})
+      params = filters
+        .transform_keys { |key| "filter[#{key}]" }
+        .transform_values { |value| value.join(",") }
+        .merge({{params}})
+
       Response.from_json(V3API.fetch!({{path}}, params)).data
     end
   end

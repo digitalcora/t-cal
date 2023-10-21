@@ -2,8 +2,6 @@ require "cache"
 require "http/server/handler"
 require "log"
 require "../calendar/ical"
-require "../v3_api/alert"
-require "../v3_api/route"
 
 # HTTP handler that serves an iCal feed based on MBTA Alerts. Handles the
 # request if the path is `/alerts.ics` or `/alerts.txt`, with the "extension"
@@ -34,8 +32,7 @@ class TCal::Handlers::Feed
 
   private def calendar
     @cache.fetch(CacheKey) do
-      alerts = V3API.calendar_alerts_with_routes
-      Calendar::ICal.new(alerts).to_s
+      Calendar::ICal.new.to_s
     end
   end
 

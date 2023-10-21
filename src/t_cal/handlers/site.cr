@@ -3,7 +3,6 @@ require "http/server/handler"
 require "markd"
 require "../calendar/html"
 require "../date"
-require "../v3_api"
 
 # HTTP handler that serves the TCal web site at the root path.
 class TCal::Handlers::Site
@@ -24,7 +23,6 @@ class TCal::Handlers::Site
       homepage = @cache.fetch("page") do
         Homepage.new(
           canonical_origin: @canonical_origin,
-          alerts: V3API.calendar_alerts_with_routes,
           today: TCal.now.to_date
         ).to_s
       end
@@ -37,12 +35,8 @@ class TCal::Handlers::Site
   end
 
   private class Homepage
-    def initialize(
-      canonical_origin : String,
-      alerts : V3API::AlertsWithRoutes,
-      today : Date
-    )
-      @calendar = Calendar.new(alerts, today)
+    def initialize(canonical_origin : String, today : Date)
+      @calendar = Calendar.new(today)
       @content = Content.new(canonical_origin)
     end
 
@@ -52,8 +46,8 @@ class TCal::Handlers::Site
   private class Calendar
     @initial_page : Int32
 
-    def initialize(alerts : V3API::AlertsWithRoutes, @today : Date)
-      @months = TCal::Calendar::HTML.new(alerts, today).months
+    def initialize(@today : Date)
+      @months = TCal::Calendar::HTML.new(today).months
       @initial_page = @months.index! { |month| same_month?(month.start, today) }
     end
 

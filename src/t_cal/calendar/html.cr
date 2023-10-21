@@ -90,8 +90,8 @@ class TCal::Calendar::HTML < TCal::Calendar
 
   # Creates a calendar instance.
   # `today` is used to ensure the calendar includes the current date.
-  def initialize(alerts_with_routes, today : Date)
-    super(alerts_with_routes)
+  def initialize(today : Date)
+    super()
 
     events = @alerts.flat_map do |alert, date_periods, route_colors|
       date_periods
