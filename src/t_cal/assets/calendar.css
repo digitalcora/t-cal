@@ -148,6 +148,8 @@
 
 #calendar dialog form {
   float: right;
+  position: sticky;
+  top: 0;
 }
 
 #calendar dialog button {
