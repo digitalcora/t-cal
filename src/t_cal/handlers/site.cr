@@ -54,7 +54,6 @@ class TCal::Handlers::Site
     ECR.def_to_s("#{__DIR__}/site/calendar.html.ecr")
 
     private def same_month?(a : Date, b : Date) : Bool
-      # ameba:disable Lint/LiteralsComparison
       {a.year, a.month} == {b.year, b.month}
     end
   end
