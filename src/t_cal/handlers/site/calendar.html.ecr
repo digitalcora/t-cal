@@ -30,6 +30,13 @@
       <div class="month" data-page="<%= month_index %>">
         <h2 class="month-label"><%= month.title %></h2>
 
+        <dl>
+          <dt>All Month</dt>
+          <% month.events.each do |event| %>
+            <dd><%= event.title %></dd>
+          <% end %>
+        </dl>
+
         <div class="day-labels">
           <% month.weeks.first.days.each do |date| %>
             <div class="day-label"><%= date.day_of_week.to_s[0..2] %></div>

@@ -13,30 +13,27 @@ class TCal::Calendar::HTML < TCal::Calendar
   # Represents a view of all weeks in a month. `start` is the first day of the
   # month. The view is assumed to be a rectangular grid, so it may also include
   # days that are not part of the month.
-  record Month, start : Date, weeks : Array(Week) do
+  record Month, events : Array(MonthEvent), start : Date, weeks : Array(Week) do
     # Produces a title for the month view, e.g. "December 2022".
     def title : String
       start.to_time.to_s("%B %Y")
     end
   end
 
-  # Represents a week within a `Month`. Events are split on week boundaries to
-  # enable the use of CSS grids for visual layout, so they are specified here.
+  # Represents a week within a `Month`. Events (other than "all-month" events)
+  # are split on week boundaries to allow using CSS grids for visual layout.
   record Week,
     days : {Date, Date, Date, Date, Date, Date, Date},
-    events : Array(Event)
+    events : Array(WeekEvent)
 
-  # Represents an event within a `Week`.
-  #
-  # If `starts_this_week` or `ends_this_week` are false, the event should be
-  # shown as continuing from the previous week or into the next week. `period`
-  # only includes days within "this" week.
-  record Event,
-    alert : V3API::Alert::Resource,
-    colors : Calendar::RouteColors?,
-    period : DatePeriod,
-    starts_this_week : Bool,
-    ends_this_week : Bool do
+  # Base struct for calendar events.
+  abstract struct Event
+    getter alert : V3API::Alert::Resource
+    getter colors : Calendar::RouteColors?
+
+    def initialize(@alert, @colors)
+    end
+
     def title : String
       ::HTML.escape(alert.service_effect)
     end
@@ -51,6 +48,28 @@ class TCal::Calendar::HTML < TCal::Calendar
 
     def url : String?
       alert.url.try { |url| ::HTML.escape(url) }
+    end
+  end
+
+  # Represents an "all-month" event within a `Month`.
+  struct MonthEvent < Event
+    # Provides a key for sorting "all-month" events. See `WeekEvent#sort_key`.
+    def sort_key
+      {colors.nil? ? 0 : 1, title}
+    end
+  end
+
+  # Represents an event within a `Week`.
+  #
+  # If `starts_this_week` or `ends_this_week` are false, the event should be
+  # shown as continuing from the previous week or into the next week. Note that
+  # `period` only includes days within "this" week.
+  struct WeekEvent < Event
+    getter period : DatePeriod
+    getter starts_this_week : Bool
+    getter ends_this_week : Bool
+
+    def initialize(@alert, @colors, @period, @starts_this_week, @ends_this_week)
     end
 
     # The 1-based grid column the event starts on.
@@ -93,39 +112,78 @@ class TCal::Calendar::HTML < TCal::Calendar
   def initialize(today : Date)
     super()
 
-    events = @alerts.flat_map do |alert, date_periods, route_colors|
-      date_periods
-        .map(&.split_at_sunday)
-        .flat_map do |periods|
-          periods.map do |period|
-            Event.new(
-              alert: alert,
-              colors: route_colors,
-              period: period,
-              starts_this_week: period == periods[0],
-              ends_this_week: period == periods[-1],
-            )
-          end
+    # NOTES FOR COMPLETION
+    #
+    # 1. Get min and max months directly from @alerts
+    # 2. Initialize "empty" months as Date => Month
+    # 3. Iterate @alerts and insert all-month events
+    # 4. Iterate @alerts and insert week events depending on all-month events
+    #
+    # Requires refactoring of Month/Week/etc. data structures:
+    #   {Date => Month(events: [MonthEvent], weeks: {Date => Week(...)})}
+    #
+    # Don't store original dates/periods where possible? Mostly not needed to
+    # render the calendar...
+
+    month_events_by_month =
+      Hash(Date, Set({V3API::Alert::Resource, RouteColors?}))
+        .new { |h, k| h[k] = Set({V3API::Alert::Resource, RouteColors?}).new }
+
+    @alerts.each do |alert, date_periods, route_colors|
+      date_periods.each do |full_period|
+        full_period.split_by_month.select(&.all_month?).each do |month_period|
+          month_events_by_month[month_period.start] << {alert, route_colors}
         end
+      end
     end
 
-    min = [today, events.min_of?(&.period.start)].compact.min
-    max = [today.shift(days: 1), events.max_of?(&.period.end)].compact.max
-    events_by_week = events.group_by(&.period.start.at_beginning_of_sunday_week)
+    week_events_by_month_week =
+      Hash({Date, Date}, Set({V3API::Alert::Resource, DatePeriod, RouteColors?}))
+        .new { |h, k| h[k] = Set({V3API::Alert::Resource, DatePeriod, RouteColors?}).new }
+
+    @alerts.each do |alert, date_periods, route_colors|
+      date_periods.each do |full_period|
+        full_period.split_at_sunday.each do |week_period|
+          {week_period.start, week_period.end.shift(days: -1)}.each do |day|
+            unless month_events_by_month[day.at_beginning_of_month].includes?({alert, route_colors})
+              week_events_by_month_week[{day.at_beginning_of_month, day.at_beginning_of_sunday_week}] <<
+                {alert, week_period, route_colors}
+            end
+          end
+        end
+      end
+    end
+
+    min = (
+      [today] |
+      month_events_by_month.keys |
+      week_events_by_month_week.values.flat_map(&.to_a).map { |event| event[1].start }
+    ).compact.min
+
+    max = (
+      [today.shift(days: 1)] |
+      month_events_by_month.keys.map(&.shift(months: 1)) |
+      week_events_by_month_week.values.flat_map(&.to_a).map { |event| event[1].end }
+    ).compact.max
 
     @months = DatePeriod.new(min, max).each_month.map do |month_start|
       month = DatePeriod.new(month_start, month_start.shift(months: 1))
+      month_events = month_events_by_month[month_start].map do |event|
+        MonthEvent.new(event[0], event[1])
+      end.sort_by(&.sort_key)
 
       weeks = month.each_sunday_week.map do |week_start|
-        events = (events_by_week[week_start]? || [] of Event)
+        week_events = week_events_by_month_week[{month_start, week_start}].map do |event|
+          WeekEvent.new(event[0], event[2], event[1], false, false)
+        end.sort_by(&.sort_key)
 
         Week.new(
-          events: events.sort_by(&.sort_key),
+          events: week_events,
           days: {0, 1, 2, 3, 4, 5, 6}.map { |num| week_start.shift(days: num) }
         )
       end.to_a
 
-      Month.new(start: month_start, weeks: weeks)
+      Month.new(start: month_start, events: month_events, weeks: weeks)
     end.to_a
   end
 end

@@ -15,6 +15,11 @@ struct Date
     {year, month, day} <=> {other.year, other.month, other.day}
   end
 
+  # See `Time#at_beginning_of_month`.
+  def at_beginning_of_month : self
+    to_time.at_beginning_of_month.to_date
+  end
+
   # See `Time#at_beginning_of_sunday_week`.
   def at_beginning_of_sunday_week : self
     to_time.at_beginning_of_sunday_week.to_date

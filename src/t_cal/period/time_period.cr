@@ -7,9 +7,7 @@ module TCal
     EARLY_HOUR =  7
     LATE_HOUR  = 22
 
-    # Returns a period that starts and ends at midnight on the same dates as
-    # this one. If any part of the end date is covered, the resulting period
-    # will cover the entire day, ending at midnight of the next day.
+    # Extends this period to span the entirety of all days it spans.
     def all_day : self
       new_end =
         if @end == @end.at_beginning_of_day
@@ -19,6 +17,25 @@ module TCal
         end
 
       new(@start.at_beginning_of_day, new_end)
+    end
+
+    # Extends this period to span the entirety of all months it spans.
+    def all_month : self
+      new_end =
+        if @end == @end.at_beginning_of_month
+          @end
+        else
+          @end.at_beginning_of_month.shift(months: 1)
+        end
+
+      new(@start.at_beginning_of_month, new_end)
+    end
+
+    # Returns whether this period spans the entirety of all months it spans
+    # (`self == self.all_month`).
+    def all_month? : Bool
+      @start == @start.at_beginning_of_month &&
+        @end == @end.at_beginning_of_month
     end
 
     # Iterates over each month in the interval, `#at_beginning_of_month`.
@@ -87,6 +104,17 @@ module TCal
 
       if @start.sunday_week != @end.sunday_week && @end != next_week
         [new(@start, next_week)] + new(next_week, @end).split_at_sunday
+      else
+        [self]
+      end
+    end
+
+    # Splits this period at month boundaries.
+    def split_by_month : Array(self)
+      next_month = @start.shift(months: 1).at_beginning_of_month
+
+      if @start.month != @end.month && @end != next_month
+        [new(@start, next_month)] + new(next_month, @end).split_by_month
       else
         [self]
       end
