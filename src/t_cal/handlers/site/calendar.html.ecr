@@ -12,18 +12,20 @@
     maxPage: <%= @months.size - 1 %>
   }"
 >
-  <div id="calendar-controls">
-    <button
-      aria-label="previous month"
-      @click="page -= 1"
-      :disabled="page == 0"
-    >❮</button>
-    <button
-      aria-label="next month"
-      @click="page += 1"
-      :disabled="page == maxPage"
-    >❯</button>
-  </div>
+  <template x-if="true">
+    <div id="calendar-controls">
+      <button
+        aria-label="previous month"
+        @click="page -= 1"
+        :disabled="page == 0"
+      >❮</button>
+      <button
+        aria-label="next month"
+        @click="page += 1"
+        :disabled="page == maxPage"
+      >❯</button>
+    </div>
+  </template>
 
   <% @months.each.with_index do |month, month_index| %>
     <template x-if="page == <%= month_index %>">
