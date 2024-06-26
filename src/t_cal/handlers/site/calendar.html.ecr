@@ -92,12 +92,21 @@
                   <h2><%= event.title %></h2>
                   <p><%= event.description %></p>
 
-                  <% if event.details %>
-                    <p><%= event.details %></p>
-                  <% end %>
-
                   <% if event.url %>
                     <p>ℹ <a href="<%= event.url %>"><%= event.url %></a></p>
+                  <% end %>
+
+                  <% if event.image_url %>
+                    <p>
+                      <img
+                        alt="<%= event.image_alt %>"
+                        src="<%= event.image_url %>"
+                      >
+                    </p>
+                  <% end %>
+
+                  <% if event.details %>
+                    <p><%= event.details %></p>
                   <% end %>
 
                   <p class="event-alert">Alert ID <%= event.alert.id %></p>

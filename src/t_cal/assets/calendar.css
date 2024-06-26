@@ -161,6 +161,13 @@
   border-bottom: 4px solid var(--bg-color);
 }
 
+@media (prefers-color-scheme: dark) {
+  #calendar dialog img {
+    /* attempt to make images less blinding in dark mode */
+    filter: brightness(0.85) contrast(1.15);
+  }
+}
+
 #calendar dialog .event-alert {
   color: var(--color-fg-subtle);
   font-size: 80%;

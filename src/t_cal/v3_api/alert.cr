@@ -25,6 +25,8 @@ module TCal::V3API::Alert
     getter created_at : Time
     @description : String?
     getter header : String
+    getter image : String?
+    getter image_alternative_text : String?
     @[JSON::Field(key: "informed_entity")]
     getter informed_entities : Array(InformedEntity)
     getter service_effect : String

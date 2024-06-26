@@ -2,7 +2,9 @@ require "../calendar"
 require "../v3_api/alert"
 
 # Generates an iCal calendar from a collection of MBTA Alerts.
-# See [RFC5545](https://tools.ietf.org/html/rfc5545) for the iCal spec.
+# See [RFC5545](https://datatracker.ietf.org/doc/html/rfc5545) for the iCal
+# spec, and [RFC7986](https://datatracker.ietf.org/doc/html/rfc7986) for
+# additional properties.
 #
 # Alerts can have an arbitrary set of periods. The equivalent iCal concept is
 # `RDATE;VALUE=PERIOD`, but unfortunately most calendar apps don't support this
@@ -44,6 +46,9 @@ class TCal::Calendar::ICal < TCal::Calendar
         io.puts "SUMMARY:#{escape(alert.service_effect)}"
         io.puts "DESCRIPTION:#{escape(description(alert))}"
         io.puts "URL:#{alert.url}" if !alert.url.nil?
+        if !alert.image.nil?
+          io.puts "IMAGE;VALUE=URI;DISPLAY=FULLSIZE:#{alert.image}"
+        end
         io.puts "COLOR:#{route_colors.primary.to_ical}" if !route_colors.nil?
         io.puts "END:VEVENT"
       end

@@ -49,6 +49,14 @@ class TCal::Calendar::HTML < TCal::Calendar
       alert.description.try { |desc| ::HTML.escape(desc).gsub("\n", "<br>") }
     end
 
+    def image_url : String?
+      alert.image.try { |url| ::HTML.escape(url) }
+    end
+
+    def image_alt : String
+      alert.image_alternative_text.try { |text| ::HTML.escape(text) } || ""
+    end
+
     def url : String?
       alert.url.try { |url| ::HTML.escape(url) }
     end
