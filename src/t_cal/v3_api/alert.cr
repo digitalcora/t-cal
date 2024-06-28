@@ -33,10 +33,11 @@ module TCal::V3API::Alert
     getter updated_at : Time
     getter url : String?
 
-    # Returns the `active_periods` that have defined end times.
+    # Returns the `active_periods` that are valid and have defined end times.
     def definite_active_periods : Array(TimePeriod)
       active_periods
         .select { |period| !period.end.nil? }
+        .select { |period| period.start < period.end.not_nil! }
         .map { |period| TimePeriod.new(period.start, period.end.not_nil!) }
     end
 
