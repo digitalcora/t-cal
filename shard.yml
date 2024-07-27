@@ -4,7 +4,7 @@ version: 0.0.1
 authors:
   - Cora Grant <394835+x@users.noreply.github.com>
 
-crystal: ~> 1.12.0
+crystal: ~> 1.13.0
 
 dependencies:
   cache:
