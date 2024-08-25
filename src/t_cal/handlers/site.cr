@@ -11,8 +11,6 @@ class TCal::Handlers::Site
   # Creates a handler instance.
   # The `canonical_origin` is used to construct the iCal URL shown on the page.
   def initialize(@canonical_origin : String)
-    # Perhaps include `today` once this is addressed:
-    # https://github.com/crystal-cache/cache/issues/31
     @cache = Cache::MemoryStore(String, String)
       .new(expires_in: 1.minute, compress: false)
   end
@@ -20,11 +18,10 @@ class TCal::Handlers::Site
   # :nodoc:
   def call(context)
     if context.request.path == "/"
-      homepage = @cache.fetch("page") do
-        Homepage.new(
-          canonical_origin: @canonical_origin,
-          today: TCal.now.to_date
-        ).to_s
+      today = TCal.now.to_date
+
+      homepage = @cache.fetch("page-#{today.hash}") do
+        Homepage.new(canonical_origin: @canonical_origin, today: today).to_s
       end
 
       context.response.content_type = "text/html"

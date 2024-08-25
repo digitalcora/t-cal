@@ -9,8 +9,9 @@ require "../calendar/ical"
 class TCal::Handlers::Feed
   include HTTP::Handler
 
-  private CacheKey = nil.to_s
-  private Log      = ::Log.for(self)
+  private Log = ::Log.for(self)
+
+  private CACHE_KEY = "feed"
 
   # Creates a handler instance.
   def initialize
@@ -31,7 +32,7 @@ class TCal::Handlers::Feed
   end
 
   private def calendar
-    @cache.fetch(CacheKey) do
+    @cache.fetch(CACHE_KEY) do
       Calendar::ICal.new.to_s
     end
   end

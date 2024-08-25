@@ -1,3 +1,4 @@
+require "cache"
 require "http/client"
 require "raven"
 require "json"
@@ -6,11 +7,6 @@ require "uri"
 # Modules for fetching JSON:API data from the MBTA's V3 API.
 # See also the [API reference](https://api-v3.mbta.com/docs/swagger/index.html).
 module TCal::V3API
-  private Log = ::Log.for(self)
-
-  private BASE_URI = {scheme: "https", host: "api-v3.mbta.com"}
-  private HEADERS  = HTTP::Headers{"MBTA-Version" => "2021-01-09"}
-
   # Defines a `self.all!` method that calls a V3 API "index" endpoint.
   #
   # `path` is the absolute path of the endpoint. `resource` is the class for
@@ -50,14 +46,21 @@ module TCal::V3API
   end
 
   private record CachedResponse, body : String, last_modified : String
-  @@response_cache = {} of String => CachedResponse
+
+  private Log = ::Log.for(self)
+
+  private BASE_URI = {scheme: "https", host: "api-v3.mbta.com"}
+  private HEADERS  = HTTP::Headers{"MBTA-Version" => "2021-01-09"}
+
+  private CACHE =
+    Cache::MemoryStore(String, CachedResponse).new(expires_in: 1.day)
 
   protected def self.fetch!(
     path : String, params = {} of String => String
   ) : String
     query = URI::Params.encode(params)
     url = URI.new(**BASE_URI, path: path, query: query).to_s
-    headers, cached_response = HEADERS, @@response_cache[url]?
+    headers, cached_response = HEADERS, CACHE.read(url)
 
     if cached_response
       headers = headers.clone
@@ -70,7 +73,7 @@ module TCal::V3API
     when response.status == HTTP::Status::OK
       last_modified = response.headers["Last-Modified"]
       Log.debug &.emit("HTTP 200", last_modified: last_modified)
-      @@response_cache[url] = CachedResponse.new(response.body, last_modified)
+      CACHE.write(url, CachedResponse.new(response.body, last_modified))
       response.body
     when response.status == HTTP::Status::NOT_MODIFIED && cached_response
       Log.debug &.emit("HTTP 304")
