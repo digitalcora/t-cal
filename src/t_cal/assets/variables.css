@@ -18,17 +18,21 @@ https://github.com/sindresorhus/github-markdown-css/blob/main/github-markdown.cs
 */
 
 @media (prefers-color-scheme: dark) {
-  :root, ::backdrop {
-    --color-canvas-muted: #2c2f34;
-    --color-dialog-backdrop: #fff3;
-    --color-dialog-shadow: #000c;
+  :root {
+    --bgColor-event: #2c2f34;
+  }
+
+  ::backdrop {
+    --bgColor-backdrop: #fff3;
   }
 }
 
 @media (prefers-color-scheme: light) {
-  :root, ::backdrop {
-    --color-canvas-muted: #c5c8cd;
-    --color-dialog-backdrop: #0004;
-    --color-dialog-shadow: #000c;
+  :root {
+    --bgColor-event: #c5c8cd;
+  }
+
+  ::backdrop {
+    --bgColor-backdrop: #0004;
   }
 }
