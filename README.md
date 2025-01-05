@@ -50,8 +50,8 @@ The server supports these environment variables:
   [`Log`](https://crystal-lang.org/api/Log.html) documentation for valid log
   levels.
 
-* `SENTRY_DSN` — If set, unhandled exceptions and other useful data will be
-  reported to [Sentry](https://sentry.io/).
+* `SENTRY_DSN` — If set, unhandled exceptions will be reported to
+  [Sentry](https://sentry.io/).
 
 * `SENTRY_ENVIRONMENT` — The environment string used for Sentry reports, if
   enabled. Default value is `default`.
