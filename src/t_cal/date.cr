@@ -30,7 +30,7 @@ struct Date
     years : Int = 0,
     months : Int = 0,
     weeks : Int = 0,
-    days : Int = 0
+    days : Int = 0,
   ) : self
     to_time
       .shift(years: years, months: months, weeks: weeks, days: days)

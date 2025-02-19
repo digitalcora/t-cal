@@ -56,7 +56,8 @@ module TCal::V3API
     Cache::MemoryStore(String, CachedResponse).new(expires_in: 1.day)
 
   protected def self.fetch!(
-    path : String, params = {} of String => String
+    path : String,
+    params = {} of String => String,
   ) : String
     query = URI::Params.encode(params)
     url = URI.new(**BASE_URI, path: path, query: query).to_s
