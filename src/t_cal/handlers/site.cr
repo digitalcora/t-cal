@@ -1,6 +1,6 @@
-require "cache"
 require "http/server/handler"
 require "markd"
+require "../cache"
 require "../calendar/html"
 require "../date"
 
@@ -8,11 +8,13 @@ require "../date"
 class TCal::Handlers::Site
   include HTTP::Handler
 
+  private Log = ::Log.for(self)
+
   # Creates a handler instance.
   # The `canonical_origin` is used to construct the iCal URL shown on the page.
   def initialize(@canonical_origin : String)
-    @cache = Cache::MemoryStore(String, String)
-      .new(expires_in: 1.minute, compress: false)
+    @cache = TCal::Cache(Date, String)
+      .new(expires_in: 1.minute, clean_every: 1.hour, log: Log)
   end
 
   # :nodoc:
@@ -20,7 +22,7 @@ class TCal::Handlers::Site
     if context.request.path == "/"
       today = TCal.now.to_date
 
-      homepage = @cache.fetch("page-#{today.hash}") do
+      homepage = @cache.fetch(today) do
         Homepage.new(canonical_origin: @canonical_origin, today: today).to_s
       end
 

@@ -12,15 +12,27 @@ shards:
     git: https://github.com/sija/backtracer.cr.git
     version: 1.2.2
 
-  cache:
-    git: https://github.com/crystal-cache/cache.git
-    version: 0.14.0
+  cron_parser:
+    git: https://github.com/kostya/cron_parser.git
+    version: 0.4.0
+
+  future:
+    git: https://github.com/crystal-community/future.cr.git
+    version: 1.0.0
 
   markd:
     git: https://github.com/icyleaf/markd.git
     version: 0.5.0
 
+  memory_cache:
+    git: https://github.com/kostya/memory_cache.git
+    version: 0.4.1
+
   raven:
     git: https://github.com/sija/raven.cr.git
     version: 1.9.4
+
+  tasker:
+    git: https://github.com/spider-gazelle/tasker.git
+    version: 2.1.4
 

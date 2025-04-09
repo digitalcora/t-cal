@@ -1,6 +1,6 @@
-require "cache"
 require "http/server/handler"
 require "log"
+require "../cache"
 require "../calendar/ical"
 
 # HTTP handler that serves an iCal feed based on MBTA Alerts. Handles the
@@ -11,14 +11,9 @@ class TCal::Handlers::Feed
 
   private Log = ::Log.for(self)
 
-  private CACHE_KEY = "feed"
-
   # Creates a handler instance.
   def initialize
-    # Should be `(Nil, String)` but:
-    # https://github.com/crystal-cache/cache/issues/31
-    @cache = Cache::MemoryStore(String, String)
-      .new(expires_in: 1.minute, compress: false)
+    @cache = TCal::Cache(Nil, String).new(expires_in: 1.minute)
   end
 
   # :nodoc:
@@ -32,7 +27,7 @@ class TCal::Handlers::Feed
   end
 
   private def calendar
-    @cache.fetch(CACHE_KEY) do
+    @cache.fetch(nil) do
       Calendar::ICal.new.to_s
     end
   end

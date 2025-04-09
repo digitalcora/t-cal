@@ -1,8 +1,8 @@
-require "cache"
 require "http/client"
 require "raven"
 require "json"
 require "uri"
+require "./cache"
 
 # Modules for fetching JSON:API data from the MBTA's V3 API.
 # See also the [API reference](https://api-v3.mbta.com/docs/swagger/index.html).
@@ -52,8 +52,8 @@ module TCal::V3API
   private BASE_URI = {scheme: "https", host: "api-v3.mbta.com"}
   private HEADERS  = HTTP::Headers{"MBTA-Version" => "2021-01-09"}
 
-  private CACHE =
-    Cache::MemoryStore(String, CachedResponse).new(expires_in: 1.day)
+  private CACHE = TCal::Cache(String, CachedResponse)
+    .new(expires_in: 1.day, clean_every: 1.hour, log: Log)
 
   protected def self.fetch!(
     path : String,
