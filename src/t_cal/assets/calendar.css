@@ -137,6 +137,7 @@
   box-shadow: #000c 0px 0px 15px;
   left: var(--body-padding);
   right: var(--body-padding);
+  width: auto;
   min-width: var(--body-min-width);
   max-width: calc(var(--body-max-width) - (var(--body-padding) * 2));
   white-space: normal;
