@@ -18,7 +18,7 @@ abstract class TCal::Calendar
 
   # IDs of Lines to fetch alerts for, minus the `line-` prefix which is common
   # to all Line IDs.
-  private LINES = %w[Blue Green Mattapan Orange Red]
+  private LINES = %w[Blue Green Mattapan Orange Red SLWaterfront SLWashington]
 
   @alerts : Array({V3API::Alert::Resource, Array(DatePeriod), RouteColors?})
 
@@ -27,7 +27,7 @@ abstract class TCal::Calendar
 
     alerts = V3API::Alert
       .all!({"route" => lines.flat_map(&.route_ids)})
-      .reject(&.transient?)
+      .select(&.duration_certainty.known?)
       .reject(&.definite_active_periods.empty?)
 
     route_ids = alerts.flat_map(&.informed_entities).compact_map(&.route).uniq!
