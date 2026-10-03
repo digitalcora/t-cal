@@ -2,7 +2,7 @@ version: 2.0
 shards:
   ameba:
     git: https://github.com/crystal-ameba/ameba.git
-    version: 1.6.4
+    version: 1.7.0
 
   any_hash:
     git: https://github.com/sija/any_hash.cr.git
@@ -10,7 +10,7 @@ shards:
 
   backtracer:
     git: https://github.com/sija/backtracer.cr.git
-    version: 1.2.4
+    version: 1.3.0-dev+git.commit.48122ff8db18e9131e0878648414fee44c6621f7
 
   cron_parser:
     git: https://github.com/kostya/cron_parser.git
@@ -18,11 +18,11 @@ shards:
 
   future:
     git: https://github.com/crystal-community/future.cr.git
-    version: 1.0.0
+    version: 1.1.0
 
   markd:
     git: https://github.com/icyleaf/markd.git
-    version: 0.5.0
+    version: 0.6.0
 
   memory_cache:
     git: https://github.com/kostya/memory_cache.git
@@ -30,9 +30,9 @@ shards:
 
   raven:
     git: https://github.com/sija/raven.cr.git
-    version: 1.9.4
+    version: 1.10.0-dev+git.commit.8e88174ed99f2a9576f3bd6df08ea973132857a4
 
   tasker:
     git: https://github.com/spider-gazelle/tasker.git
-    version: 2.1.4
+    version: 3.1.0
 

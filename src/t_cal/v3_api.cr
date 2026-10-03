@@ -57,7 +57,7 @@ module TCal::V3API
 
   protected def self.fetch!(
     path : String,
-    params = {} of String => String,
+    params = Hash(String, String).new,
   ) : String
     query = URI::Params.encode(params)
     url = URI.new(**BASE_URI, path: path, query: query).to_s
@@ -73,14 +73,14 @@ module TCal::V3API
     case
     when response.status == HTTP::Status::OK
       last_modified = response.headers["Last-Modified"]
-      Log.debug &.emit("HTTP 200", last_modified: last_modified)
+      Log.debug(&.emit("HTTP 200", last_modified: last_modified))
       CACHE.write(url, CachedResponse.new(response.body, last_modified))
       response.body
     when response.status == HTTP::Status::NOT_MODIFIED && cached_response
-      Log.debug &.emit("HTTP 304")
+      Log.debug(&.emit("HTTP 304"))
       cached_response.body
     when response.status.server_error? && cached_response
-      Log.warn &.emit("HTTP 5xx", response_body: response.body)
+      Log.warn(&.emit("HTTP 5xx", response_body: response.body))
       Raven.capture(ServerError.new(response.body), level: :warning)
       cached_response.body
     else

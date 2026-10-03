@@ -15,6 +15,6 @@ class TCal::Handlers::Errors
   end
 
   def build_raven_http_data(context)
-    {} of String => String
+    Hash(String, String).new
   end
 end

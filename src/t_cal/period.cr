@@ -22,7 +22,7 @@ module TCal
     # Returns a copy of the given array where consecutive periods of the same
     # type that are contiguous or overlapping are merged together.
     def self.merge(periods : Array(U)) : Array(U) forall U
-      periods.reduce([] of typeof(periods[0])) do |acc, elem|
+      periods.reduce(Array(typeof(periods[0])).new) do |acc, elem|
         elem.is_a?(self) ? elem.merge_into!(acc) : acc << elem
       end
     end

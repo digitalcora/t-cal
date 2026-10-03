@@ -18,7 +18,7 @@ abstract class TCal::Calendar
 
   # IDs of Lines to fetch alerts for, minus the `line-` prefix which is common
   # to all Line IDs.
-  private LINES = %w(Blue Green Mattapan Orange Red)
+  private LINES = %w[Blue Green Mattapan Orange Red]
 
   @alerts : Array({V3API::Alert::Resource, Array(DatePeriod), RouteColors?})
 

@@ -23,7 +23,7 @@ class TCal::Handlers::Canonize
     request_host = context.request.hostname
 
     if !request_host.nil? && request_host != @origin.host
-      Log.info &.emit("Redirecting", from: request_host)
+      Log.info(&.emit("Redirecting", from: request_host))
 
       location = URI.new(
         scheme: @origin.scheme,

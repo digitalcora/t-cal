@@ -20,10 +20,10 @@ class TCal::Cache(K, V) < MemoryCache(K, V)
 
     if !clean_every.nil?
       Tasker.every(clean_every) do
-        count = self.cleanup
+        count = cleanup()
 
         if count > 0 && !log.nil?
-          log.info &.emit("Cache cleaned", count: count)
+          log.info(&.emit("Cache cleaned", count: count))
         end
       end
     end

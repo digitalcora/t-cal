@@ -1,11 +1,32 @@
-# Enable all rules that are disabled by default, other than `Style/GuardClause`
+# Enable any rules disabled by default as long as they don't cause much trouble
 
 Lint/ComparisonToBoolean:
+  Enabled: true
+
+Lint/DuplicateBranch:
+  Enabled: true
+
+Lint/Typos:
   Enabled: true
 
 Layout/LineLength:
   Enabled: true
   MaxLength: 80
+  Excluded:
+    # HTML templates contain long lines that are not possible to break
+    - "**/*.html.ecr"
+
+Style/ArrayLiteralSyntax:
+  Enabled: true
+
+Style/CallParentheses:
+  Enabled: true
+
+Style/Elsif:
+  Enabled: true
+
+Style/HashLiteralSyntax:
+  Enabled: true
 
 Style/LargeNumbers:
   Enabled: true
@@ -13,7 +34,14 @@ Style/LargeNumbers:
 Style/PredicateName:
   Enabled: true
 
-# Disable warnings about `.not_nil!` as we have some legitimate uses for it
+Typing/MacroCallArgumentTypeRestriction:
+  Enabled: true
 
+# Disable warnings about `.not_nil!` as we have some legitimate uses for it
 Lint/NotNil:
+  Enabled: false
+
+# No clear rationale for this, and conflicts with code written before it was
+# introduced
+Lint/WhitespaceAroundMacroExpression:
   Enabled: false

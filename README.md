@@ -6,26 +6,26 @@ web page and an iCal feed. See the live site at: https://tcal.digitalcora.net
 
 ### Setup
 
-1. [Install Crystal](https://crystal-lang.org/install/)
-2. `shards install`
+[Install Crystal](https://crystal-lang.org/install/) using a supported method
+for your operating system.
 
-[`asdf install`](https://github.com/asdf-vm/asdf) may also be used, but is not
-recommended, since this doesn't install any of the system-level packages Crystal
-depends on.
+The currently-used version is declared in `.tool-versions`, but using e.g.
+[`asdf`](https://github.com/asdf-vm/asdf) to install it is not recommended,
+since it may not install the system-level packages Crystal depends on.
 
 
 ### Development
 
-* Run the server: `crystal src/main.cr`
+* Run the server: `shards run server`
 * Generate docs: `crystal docs` _(then open `docs/index.html`)_
-* Lint the code: `bin/ameba`
+* Lint the code: `shards run ameba`
 
 
 ### Production
 
 To build a standalone binary `bin/server`:
 
-* `shards build --production --release --static`
+* `shards build server --production --release --static`
 
 The current production instance runs on [Fly](https://fly.io/), using the
 `fly.toml` included in the repo.
