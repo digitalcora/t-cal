@@ -9,7 +9,12 @@ require "./t_cal/server"
 Log.define_formatter TimelessFormat,
   "#{severity} - #{source(after: ": ")}#{message}" \
   "#{data(before: " -- ")}#{context(before: " -- ")}#{exception}"
-Log.setup_from_env(backend: Log::IOBackend.new(formatter: TimelessFormat))
+
+log_time = ENV.fetch("LOG_TIME", "true") == "true"
+# https://github.com/crystal-lang/crystal/issues/9480
+log_formatter = log_time ? Log::ShortFormat : TimelessFormat.as(Log::Formatter)
+
+Log.setup_from_env(backend: Log::IOBackend.new(formatter: log_formatter))
 
 Raven.configure do |config|
   config.async = true

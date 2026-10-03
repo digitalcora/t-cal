@@ -50,6 +50,9 @@ The server supports these environment variables:
   [`Log`](https://crystal-lang.org/api/Log.html) documentation for valid log
   levels.
 
+* `LOG_TIME` — If set to `true`, logs are prefixed with timestamps. Default
+  value is `true`.
+
 * `SENTRY_DSN` — If set, unhandled exceptions will be reported to
   [Sentry](https://sentry.io/).
 

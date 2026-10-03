@@ -5,6 +5,7 @@ kill_timeout = "5s"
 
 [env]
   HOST = "0.0.0.0"
+  LOG_TIME = "false"
   ORIGIN = "https://tcal.digitalcora.net"
   PORT = "8080"
 
