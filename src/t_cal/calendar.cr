@@ -20,13 +20,16 @@ abstract class TCal::Calendar
   # to all Line IDs.
   private LINES = %w[Blue Green Mattapan Orange Red SLWaterfront SLWashington]
 
+  private ALERT_FILTERS = {"severity" => (3..10).map(&.to_s)}
+  private LINE_FILTERS  = {"id" => LINES.map { |line| "line-#{line}" }}
+
   @alerts : Array({V3API::Alert::Resource, Array(DatePeriod), RouteColors?})
 
   def initialize
-    lines = V3API::Line.all!({"id" => LINES.map { |line| "line-#{line}" }})
+    lines = V3API::Line.all!(LINE_FILTERS)
 
     alerts = V3API::Alert
-      .all!({"route" => lines.flat_map(&.route_ids)})
+      .all!(ALERT_FILTERS.merge({"route" => lines.flat_map(&.route_ids)}))
       .select(&.duration_certainty.known?)
       .reject(&.definite_active_periods.empty?)
 
